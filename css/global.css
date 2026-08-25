@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@import "./components/buttons.css" layer(components);
+@import "./components/cards.css" layer(components);
+@import "./components/badges.css" layer(components);
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-glass: rgba(30, 41, 59, 0.7);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 antialiased selection:bg-indigo-500 selection:text-white;
+    font-family: var(--font-sans);
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-white/20 dark:border-slate-700/50 shadow-xl;
+  }
+  
+  .glass-card {
+    @apply bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+}

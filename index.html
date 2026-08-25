@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DEV-FE-003 - JavaScript Core Lab</title>
+  <link rel="stylesheet" href="css/output.css" />
+</head>
+
+<body
+  class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300">
+
+  <!-- Hero Section with Background Glow -->
+  <div class="relative overflow-hidden bg-slate-950 text-white">
+    <!-- Glow effects -->
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl"></div>
+    <div class="absolute top-12 -right-24 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl"></div>
+
+    <header class="relative container mx-auto px-6 py-20 lg:py-28 z-10">
+      <div class="grid lg:grid-cols-12 gap-12 items-center">
+
+        <div class="lg:col-span-7">
+          <span class="badge-glow mb-6">
+            DEV-FE-003
+          </span>
+          <h1
+            class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-indigo-300">
+            ES6+
+          </h1>
+
+          <div class="flex flex-wrap gap-3">
+            <span class="badge-chip">Scope & Closure</span>
+            <span class="badge-chip">this</span>
+            <span class="badge-chip">Array Methods</span>
+            <span class="badge-chip">Async/Await</span>
+            <span class="badge-chip">Event Loop</span>
+            <span class="badge-chip">Modules & Class</span>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5">
+          <div class="bg-white/10 border border-white/20 p-8 rounded-3xl backdrop-blur-md shadow-2xl">
+            <div class="flex justify-between items-end mb-4">
+              <span class="text-slate-300 font-medium">Tiến độ bài tập</span>
+              <strong id="progress-label" class="text-3xl font-bold text-white">0%</strong>
+            </div>
+            <div class="h-3 w-full bg-slate-800/50 rounded-full overflow-hidden mb-4 shadow-inner">
+              <div id="progress-bar"
+                class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-0 transition-all duration-500 ease-out rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]">
+              </div>
+            </div>
+            <p id="progress-copy" class="text-sm text-slate-400">Bắt đầu từ phần nền tảng JavaScript.</p>
+          </div>
+        </div>
+
+      </div>
+    </header>
+  </div>
+
+  <main class="container mx-auto px-6 py-16 grid gap-10">
+
+    <!-- Stats Section -->
+    <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 -mt-24 relative z-20">
+      <article class="card-stat">
+        <strong class="block text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">08</strong>
+        <span class="text-slate-500 dark:text-slate-400 font-medium">lab code chính</span>
+      </article>
+      <article class="card-stat">
+        <strong class="block text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1">02</strong>
+        <span class="text-slate-500 dark:text-slate-400 font-medium">phần Q&A mentor</span>
+      </article>
+      <article class="card-stat">
+        <strong class="block text-4xl font-bold text-blue-600 dark:text-blue-400 mb-1">JS</strong>
+        <span class="text-slate-500 dark:text-slate-400 font-medium">thuần, không framework</span>
+      </article>
+      <article class="card-stat">
+        <strong class="block text-4xl font-bold text-teal-600 dark:text-teal-400 mb-1">ES6+</strong>
+        <span class="text-slate-500 dark:text-slate-400 font-medium">chuẩn cần dùng</span>
+      </article>
+    </section>
+
+    <section class="grid lg:grid-cols-12 gap-10">
+      <!-- Roadmap Sidebar -->
+      <article class="lg:col-span-5 card-glass self-start sticky top-6">
+        <div class="flex justify-between items-start mb-8 border-b border-slate-100 dark:border-slate-700 pb-6">
+          <div>
+            <small class="badge-lab">ROADMAP</small>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">10 chặng cần hoàn thành</h2>
+          </div>
+          <button id="reset-btn" class="btn-icon" title="Reset Tiến Độ">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+        <div id="task-list" class="space-y-1">
+          <!-- JS will populate tasks here -->
+        </div>
+      </article>
+
+      <div class="lg:col-span-7 grid gap-10">
+        <!-- Lab 01: Closure Counter -->
+        <article class="card-glass">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/20 rounded-bl-full -z-10"></div>
+          <div class="flex justify-between items-start mb-8">
+            <div>
+              <small class="badge-lab">LAB 01</small>
+              <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Closure Counter</h2>
+            </div>
+            <span class="badge-info">Scope → state</span>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="card-terminal group">
+              <div class="absolute top-3 right-3 flex space-x-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+              </div>
+              <pre class="text-slate-300 text-sm font-mono leading-relaxed mt-2"><code class="language-js"><span class="text-purple-400">function</span> <span class="text-blue-400">counter</span>() {
+  <span class="text-purple-400">let</span> count = <span class="text-orange-400">0</span>;
+  <span class="text-purple-400">return</span> () => ++count;
+}
+
+<span class="text-purple-400">const</span> inc = <span class="text-blue-400">counter</span>();</code></pre>
+            </div>
+
+            <div
+              class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center border border-slate-100 dark:border-slate-700">
+              <span class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Giá trị đang được closure
+                giữ</span>
+              <strong id="counter-value"
+                class="text-6xl font-black text-indigo-600 dark:text-indigo-400 my-4 drop-shadow-sm">0</strong>
+              <button id="counter-btn" class="btn-primary">
+                inc()
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Lab 02: Array Methods -->
+        <article class="card-glass">
+          <small class="badge-lab">LAB 02</small>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Array Methods Playground</h2>
+
+          <div class="flex flex-wrap gap-3 mb-6" id="array-actions">
+            <button data-mode="all" class="btn-secondary">Tất cả</button>
+            <button data-mode="adult" class="btn-secondary">filter ≥18</button>
+            <button data-mode="active" class="btn-secondary">filter active</button>
+            <button data-mode="names" class="btn-secondary">map names</button>
+          </div>
+
+          <div id="users-view" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6 min-h-[120px]">
+            <!-- Users populated here -->
+          </div>
+
+          <div
+            class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-5 flex items-center justify-between">
+            <span class="text-indigo-800 dark:text-indigo-300 font-medium"><strong
+                class="bg-indigo-200 dark:bg-indigo-800 px-2 py-0.5 rounded text-indigo-900 dark:text-indigo-100 mr-2">reduce</strong>Tổng
+              tuổi:</span>
+            <span id="age-total" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">0</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Lab 03: Event Loop -->
+    <section class="card-glass grid lg:grid-cols-12 gap-10 items-center">
+      <div class="lg:col-span-5">
+        <small class="badge-lab">LAB 03</small>
+        <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-4">Event Loop Visualizer</h2>
+        <p class="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+          Trải nghiệm cách JS engine xử lý đồng bộ và bất đồng bộ. <strong
+            class="text-slate-800 dark:text-slate-200">Sync</strong> chạy trước, sau đó <strong
+            class="text-purple-600 dark:text-purple-400">Microtask</strong> (Promise) được ưu tiên xử lý trước <strong
+            class="text-orange-600 dark:text-orange-400">Task Queue</strong> (setTimeout).
+        </p>
+        <button id="event-btn" class="btn-action">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+              clip-rule="evenodd" />
+          </svg>
+          Chạy mô phỏng
+        </button>
+      </div>
+
+      <div class="lg:col-span-7 space-y-6">
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div class="card-queue group bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600">
+            <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+            <strong class="block text-sm text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Call
+              Stack</strong>
+            <p
+              class="font-mono text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700 mb-2">
+              console.log(1)</p>
+            <p
+              class="font-mono text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700">
+              console.log(4)</p>
+          </div>
+          <div class="card-queue group bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800/50">
+            <div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+            <strong
+              class="block text-sm text-purple-600 dark:text-purple-400 mb-3 uppercase tracking-wider">Microtask</strong>
+            <p
+              class="font-mono text-sm text-purple-900 dark:text-purple-200 bg-white/60 dark:bg-purple-900/40 p-2 rounded border border-purple-100 dark:border-purple-800">
+              Promise.then → 3</p>
+          </div>
+          <div class="card-queue group bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-800/50">
+            <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+            <strong class="block text-sm text-orange-600 dark:text-orange-400 mb-3 uppercase tracking-wider">Task
+              Queue</strong>
+            <p
+              class="font-mono text-sm text-orange-900 dark:text-orange-200 bg-white/60 dark:bg-orange-900/40 p-2 rounded border border-orange-100 dark:border-orange-800">
+              setTimeout → 2</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-6 flex items-center justify-between shadow-inner">
+          <small class="text-slate-400 font-mono text-xs uppercase tracking-widest">OUTPUT TERMINAL</small>
+          <strong id="event-output" class="text-2xl font-mono text-green-400 tracking-widest">?</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid lg:grid-cols-2 gap-10">
+      <!-- Lab 04: Async -->
+      <article class="card-glass flex flex-col">
+        <small class="badge-lab">LAB 04</small>
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Async: Tuần tự vs Song song</h2>
+
+        <div class="grid sm:grid-cols-2 gap-4 mb-6 flex-1">
+          <button id="seq-btn" class="btn-compare group">
+            <div
+              class="absolute top-0 left-0 w-full h-1 bg-amber-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left">
+            </div>
+            <strong class="block text-lg text-slate-800 dark:text-white mb-1">Tuần tự</strong>
+            <span
+              class="text-xs text-slate-500 dark:text-slate-400 block mb-6 font-mono bg-white dark:bg-slate-800 inline-block px-2 py-1 rounded">await
+              A → await B</span>
+            <b id="seq-time" class="block text-3xl font-bold text-amber-500">—</b>
+          </button>
+
+          <button id="par-btn" class="btn-compare group">
+            <div
+              class="absolute top-0 left-0 w-full h-1 bg-emerald-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left">
+            </div>
+            <strong class="block text-lg text-slate-800 dark:text-white mb-1">Promise.all</strong>
+            <span
+              class="text-xs text-slate-500 dark:text-slate-400 block mb-6 font-mono bg-white dark:bg-slate-800 inline-block px-2 py-1 rounded">A
+              + B song song</span>
+            <b id="par-time" class="block text-3xl font-bold text-emerald-500">—</b>
+          </button>
+        </div>
+        <p id="async-note"
+          class="text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-50 dark:bg-slate-900 py-3 rounded-xl">
+          Bấm hai ô để mô phỏng thời gian chạy.</p>
+      </article>
+
+      <!-- Lab 05: ES Modules -->
+      <article class="card-glass">
+        <div
+          class="absolute -bottom-10 -right-10 w-48 h-48 bg-indigo-50 dark:bg-indigo-900/20 rounded-full blur-2xl -z-10">
+        </div>
+        <small class="badge-lab">LAB 05</small>
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">ES Modules → Cấu trúc Project</h2>
+
+        <div class="card-terminal mb-6">
+          <pre
+            class="text-slate-300 text-sm font-mono leading-loose"><code><span class="text-indigo-400">src/</span>
+├── <span class="text-green-400">app.js</span>      <span class="text-slate-500 text-xs">// Entry point</span>
+├── <span class="text-yellow-400">math.js</span>     <span class="text-slate-500 text-xs">// Utils, named exports</span>
+├── <span class="text-blue-400">users.js</span>    <span class="text-slate-500 text-xs">// Data fetching</span>
+└── <span class="text-purple-400">utils.js</span>    <span class="text-slate-500 text-xs">// DOM Helpers</span></code></pre>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <span class="badge-tag">import</span>
+          <span class="badge-tag">export</span>
+          <span class="badge-tag">default</span>
+          <span class="badge-tag">named export</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- Final Check -->
+    <section
+      class="rounded-3xl p-10 bg-gradient-to-br from-indigo-900 to-slate-900 text-white relative overflow-hidden shadow-lg border border-indigo-500/20">
+      <!-- Decor -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
+
+      <div class="relative z-10">
+        <small class="text-indigo-300 font-bold tracking-wider text-xs uppercase mb-2 block">FINAL CHECK</small>
+        <h2 class="text-3xl font-bold mb-10">Definition of Done</h2>
+
+        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div
+            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+            <strong class="block text-lg mb-2 flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              Logic JS thuần
+            </strong>
+            <span class="text-sm text-indigo-100/70">Không React/framework.</span>
+          </div>
+          <div
+            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+            <strong class="block text-lg mb-2 flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              Array + Closure
+            </strong>
+            <span class="text-sm text-indigo-100/70">Dùng hợp lý, declarative.</span>
+          </div>
+          <div
+            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+            <strong class="block text-lg mb-2 flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              Async/Await
+            </strong>
+            <span class="text-sm text-indigo-100/70">Có try/catch + Promise.all.</span>
+          </div>
+          <div
+            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+            <strong class="block text-lg mb-2 flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              Event Loop
+            </strong>
+            <span class="text-sm text-indigo-100/70">Giải thích sync → microtask → task.</span>
+          </div>
+          <div
+            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+            <strong class="block text-lg mb-2 flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              ES Modules
+            </strong>
+            <span class="text-sm text-indigo-100/70">Tách file import/export gọn.</span>
+          </div>
+          <div
+            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+            <strong class="block text-lg mb-2 flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              Q&A Mentor
+            </strong>
+            <span class="text-sm text-indigo-100/70">Closure + Event Loop.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

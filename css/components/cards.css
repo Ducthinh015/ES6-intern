@@ -1,0 +1,17 @@
+@layer components {
+  .card-glass {
+    @apply rounded-3xl p-8 bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 shadow-lg transition-all duration-300 relative overflow-hidden;
+  }
+  
+  .card-stat {
+    @apply rounded-2xl p-6 bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 shadow-md;
+  }
+  
+  .card-terminal {
+    @apply bg-slate-900 rounded-2xl p-5 shadow-inner overflow-x-auto relative;
+  }
+  
+  .card-queue {
+    @apply p-5 rounded-2xl border shadow-sm relative overflow-hidden;
+  }
+}
