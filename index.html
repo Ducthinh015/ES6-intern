@@ -30,12 +30,12 @@
           </h1>
 
           <div class="flex flex-wrap gap-3">
-            <span class="badge-chip">Scope & Closure</span>
-            <span class="badge-chip">this</span>
-            <span class="badge-chip">Array Methods</span>
-            <span class="badge-chip">Async/Await</span>
-            <span class="badge-chip">Event Loop</span>
-            <span class="badge-chip">Modules & Class</span>
+            <span class="badge-chip">JS Scope & Closure</span>
+            <span class="badge-chip">B4: React Fundamentals</span>
+            <span class="badge-chip">B5: Internal Architecture</span>
+            <span class="badge-chip">B6: TypeScript Integration</span>
+            <span class="badge-chip">B7: Advanced Performance</span>
+            <span class="badge-chip">B8: State Management</span>
           </div>
         </div>
 
@@ -63,20 +63,20 @@
     <!-- Stats Section -->
     <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 -mt-24 relative z-20">
       <article class="card-stat">
-        <strong class="block text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">08</strong>
-        <span class="text-slate-500 dark:text-slate-400 font-medium">lab code chính</span>
+        <strong class="block text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">15</strong>
+        <span class="text-slate-500 dark:text-slate-400 font-medium">chặng bài tập (B1 - B8)</span>
       </article>
       <article class="card-stat">
-        <strong class="block text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1">02</strong>
-        <span class="text-slate-500 dark:text-slate-400 font-medium">phần Q&A mentor</span>
+        <strong class="block text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1">05</strong>
+        <span class="text-slate-500 dark:text-slate-400 font-medium">thư mục docs chi tiết</span>
       </article>
       <article class="card-stat">
-        <strong class="block text-4xl font-bold text-blue-600 dark:text-blue-400 mb-1">JS</strong>
-        <span class="text-slate-500 dark:text-slate-400 font-medium">thuần, không framework</span>
+        <strong class="block text-4xl font-bold text-blue-600 dark:text-blue-400 mb-1">React</strong>
+        <span class="text-slate-500 dark:text-slate-400 font-medium">Hooks, Form, Lifecycle</span>
       </article>
       <article class="card-stat">
-        <strong class="block text-4xl font-bold text-teal-600 dark:text-teal-400 mb-1">ES6+</strong>
-        <span class="text-slate-500 dark:text-slate-400 font-medium">chuẩn cần dùng</span>
+        <strong class="block text-4xl font-bold text-teal-600 dark:text-teal-400 mb-1">TS/State</strong>
+        <span class="text-slate-500 dark:text-slate-400 font-medium">Generics, Zustand, RTK</span>
       </article>
     </section>
 
@@ -86,7 +86,7 @@
         <div class="flex justify-between items-start mb-8 border-b border-slate-100 dark:border-slate-700 pb-6">
           <div>
             <small class="badge-lab">ROADMAP</small>
-            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">10 chặng cần hoàn thành</h2>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">15 chặng cần hoàn thành (B1-B8)</h2>
           </div>
           <button id="reset-btn" class="btn-icon" title="Reset Tiến Độ">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -285,6 +285,35 @@
           <span class="badge-tag">named export</span>
         </div>
       </article>
+    </section>
+
+    <!-- Section B4-B8: Advanced Frontend Modules & Docs Viewer -->
+    <section class="card-glass border border-indigo-500/30">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-slate-700">
+        <div>
+          <small class="badge-lab">B4 — B8 ADVANCED</small>
+          <h2 class="text-3xl font-bold text-slate-800 dark:text-white">Nội Dung Thực Hành & Tài Liệu Docs Chi Tiết</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Chọn từng bài học bên dưới để xem nội dung tổng quan, chạy mô phỏng và mở docs chi tiết.</p>
+        </div>
+        <a id="open-docs-btn" href="DOCUMENTATION.md" target="_blank" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold text-sm shadow-md hover:opacity-95 transition-opacity flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          Mở Full Docs Tổng Hợp (DOCUMENTATION.md)
+        </a>
+      </div>
+
+      <!-- Navigation Tabs B4-B8 -->
+      <div class="flex flex-wrap gap-2 mb-8" id="lesson-tabs">
+        <button data-lesson="B4" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-md">B4: React Fundamentals</button>
+        <button data-lesson="B5" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B5: Module Nội Bộ</button>
+        <button data-lesson="B6" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B6: TypeScript</button>
+        <button data-lesson="B7" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B7: Advanced Performance</button>
+        <button data-lesson="B8" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B8: State Management</button>
+      </div>
+
+      <!-- Active Lesson Panel Container -->
+      <div id="lesson-panel" class="grid lg:grid-cols-12 gap-8">
+        <!-- Content will be dynamically updated by js/app.js -->
+      </div>
     </section>
 
     <!-- Final Check -->

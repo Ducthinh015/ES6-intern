@@ -1,0 +1,18 @@
+{
+  "moduleName": "Enterprise Internal Core",
+  "version": "1.0.0",
+  "techStack": ["React 18", "TypeScript", "Tailwind CSS", "Axios", "Zustand"],
+  "routes": [
+    { "path": "/", "component": "DashboardOverviewPage", "authRequired": true },
+    { "path": "/users", "component": "UserManagementPage", "authRequired": true, "roles": ["ADMIN", "MANAGER"] },
+    { "path": "/login", "component": "LoginPage", "authRequired": false }
+  ],
+  "pipelineSteps": [
+    "1. Route Matching",
+    "2. Auth Guard & Permission Verification",
+    "3. Fetch Data via Service Layer",
+    "4. Axios Interceptor Token Attachment",
+    "5. React Store / Component State Update",
+    "6. UI Virtual DOM Re-render"
+  ]
+}
