@@ -2,6 +2,9 @@ import { createCounter } from './closure.js';
 import { users, getUsersView, totalAge } from './array-methods.js';
 import { runSequentialDemo, runParallelDemo } from './async.js';
 import { playEventLoopDemo } from './event-loop.js';
+import { useAppStore } from '../modules/b8_state_management/zustand_store.js';
+import { reduxStore, fetchProductsThunk } from '../modules/b8_state_management/redux_toolkit_store.js';
+import { queryClient } from '../modules/b9_tanstack_query/tanstack_query_engine.js';
 
 const tasks = [
   'Scope, let/const, hoisting & closure',
@@ -18,7 +21,8 @@ const tasks = [
   'B5: Tổng quan Module nội bộ (Architecture, Routing→Data→Render)',
   'B6: TypeScript Integration (Types, Generics, Strict Coverage >90%)',
   'B7: React Advanced Performance (Memoization, Custom Hooks)',
-  'B8: State Management (Zustand, Redux Toolkit, Persist)'
+  'B8: State Management (Zustand, Redux Toolkit, Persist)',
+  'B9: Fetching với TanStack Query (Server State, Caching, Invalidation, Optimistic Updates)'
 ];
 
 let completed = tasks.map(() => false);
@@ -62,8 +66,8 @@ function updateProgress() {
   if (bar) bar.style.width = `${percent}%`;
   if (copy) {
     copy.textContent =
-      done === 15 ? '🎉 Hoàn thành toàn bộ lộ trình khóa học FE (B1 - B8)!' :
-      done >= 10 ? 'Đang chinh phục các module React, TS & State Management!' :
+      done === 16 ? '🎉 Hoàn thành toàn bộ lộ trình khóa học FE (B1 - B9)!' :
+      done >= 11 ? 'Đang chinh phục các module React, TS, State Management & TanStack Query!' :
       done >= 5 ? 'Đã nắm chắc nền tảng JS Core & Async.' :
       'Bắt đầu học từ nền tảng Scope & Closure.';
   }
@@ -219,26 +223,105 @@ export function useDebounce(value, delay = 300) {
   },
   B8: {
     title: 'B8: State Management (Zustand & Redux Toolkit)',
-    docPath: 'DOCUMENTATION.md',
-    summary: 'Quản lý Global State với Zustand (store, slice, persist) và Redux Toolkit (store, slice, createAsyncThunk, RTK Query), tối ưu selector.',
+    docPath: 'docs/B8_State_Management.md',
+    summary: 'Quản lý Global State với Zustand (Slices, Middleware Persist localStorage, Devtools) và Redux Toolkit (Slices, createAsyncThunk, Reselect memoized selectors).',
     topics: [
-      'Khái niệm Local vs Global State & khi nào cần dùng',
-      'Zustand: Tạo store, slice pattern, persist middleware',
-      'Redux Toolkit: store, slice, createAsyncThunk, RTK Query',
-      'Selector optimization tránh re-render thừa',
-      'Tiêu chí lựa chọn Zustand vs Redux Toolkit'
+      'Phân biệt Local State (UI) vs Global State (Shared)',
+      'Zustand: Slice pattern & Middleware Persist localStorage',
+      'Redux Toolkit: configureStore, createSlice & createAsyncThunk',
+      'Tối ưu Atomic Selectors (Zustand) & Reselect (RTK) tránh re-render',
+      'Bảng tiêu chí lựa chọn công nghệ cho dự án doanh nghiệp'
     ],
-    codeSnippet: `// Zustand Persist Store
-export const useCartStore = create(persist(
-  (set, get) => ({
-    items: [],
-    addToCart: (item) => set(s => ({ items: [...s.items, item] }))
-  }),
-  { name: 'cart-storage' }
-));`,
-    demoAction: 'Dispatch Zustand Store Action',
-    demoHandler: () => {
-      alert('📦 Action Dispatched: Cart store updated and persisted automatically to localStorage!');
+    codeSnippet: `// Zustand Store with Slices & Persist
+export const useAppStore = createStore(
+  devtools(
+    persist(
+      (set, get, api) => ({
+        ...createAuthSlice(set, get, api),
+        ...createCartSlice(set, get, api)
+      }),
+      { name: 'app-global-storage' }
+    )
+  )
+);`,
+    demoAction: 'Dispatch Zustand & RTK Actions',
+    demoHandler: async () => {
+      // 1. Dispatch Zustand action
+      useAppStore.getState().addToCart({
+        id: 'prod_' + Math.floor(Math.random() * 1000),
+        name: 'Sản phẩm demo ' + (useAppStore.getState().cartItems.length + 1),
+        price: 99
+      });
+      const cartCount = useAppStore.getState().getCartTotalCount();
+      const totalPrice = useAppStore.getState().getCartTotalPrice();
+
+      // 2. Dispatch RTK async thunk
+      await reduxStore.dispatch(fetchProductsThunk(2));
+      const rtkProducts = reduxStore.getState().products.items.length;
+
+      alert(`✅ [B8 State Management Test]:
+• Zustand Cart: ${cartCount} sản phẩm (Tổng: $${totalPrice}) -> Đã đồng bộ localStorage ['app-global-storage']!
+• Redux Toolkit: Đã dispatch fetchProductsThunk -> Đang giữ ${rtkProducts} sản phẩm trong store.`);
+    }
+  },
+  B9: {
+    title: 'B9: Fetching với TanStack Query (React Query v5)',
+    docPath: 'docs/B9_TanStack_Query.md',
+    summary: 'Quản lý Server State, cơ chế Caching, Invalidation, Stale-While-Revalidate, Phân trang mượt mà không giật UI và Cập nhật lạc quan (Optimistic Updates) kèm Rollback tự động.',
+    topics: [
+      'Bản chất Server State vs Client State (Zustand)',
+      'QueryKey Factory Pattern & useQuery nâng cao',
+      'Stale Time vs Garbage Collection Time (gcTime)',
+      'useMutation & queryClient.invalidateQueries',
+      'Kỹ thuật Optimistic Updates (onMutate, onError rollback)',
+      'Phân trang với keepPreviousData & Prefetching'
+    ],
+    codeSnippet: `// Custom Query Hook with Factory & Optimistic Update
+export function useProducts(page, search) {
+  return useQuery({
+    queryKey: productKeys.list({ page, search }),
+    queryFn: () => api.fetchProducts({ page, search }),
+    staleTime: 10000,
+    placeholderData: keepPreviousData
+  });
+}`,
+    demoAction: 'Run TanStack Query Simulator (Cache & Optimistic UI)',
+    demoHandler: async () => {
+      const demoKey = ['products', 'list', { page: 1 }];
+      const query = queryClient.buildQuery({
+        queryKey: demoKey,
+        queryFn: async () => {
+          await new Promise(r => setTimeout(r, 400));
+          return [
+            { id: 1, title: 'MacBook Pro M3 Max', price: 3499 },
+            { id: 2, title: 'Bàn phím cơ Custom Q1', price: 210 }
+          ];
+        },
+        staleTime: 5000
+      });
+
+      // 1. Lần fetch đầu tiên (Cache Miss)
+      const t0 = performance.now();
+      await query.fetch();
+      const t1 = performance.now();
+      const fetchDuration = Math.round(t1 - t0);
+
+      // 2. Lần lấy thứ 2 trong staleTime (Cache Hit 0ms!)
+      const cached = queryClient.getQueryData(demoKey);
+      const isStale = query.isStale();
+
+      // 3. Test Optimistic Update
+      queryClient.setQueryData(demoKey, old => [
+        { id: 'temp-' + Date.now(), title: '⚡ Sản phẩm Lạc Quan (0ms)', price: 150 },
+        ...(old || [])
+      ]);
+      const optimisticList = queryClient.getQueryData(demoKey);
+
+      alert(`⚡ [B9 TanStack Query Simulation]:
+1. Cache Miss (Lần đầu): Gọi API mất ~${fetchDuration}ms
+2. Cache Hit (Lần 2): Trả ngay lập tức từ RAM (0ms latency, Stale: ${isStale ? 'Có' : 'Chưa'})
+3. Optimistic Update: Thêm thành công sản phẩm tạm thời (Tổng: ${optimisticList.length} items)
+4. Tự động đồng bộ chuẩn xác khi queryClient.invalidateQueries() được gọi!`);
     }
   }
 };

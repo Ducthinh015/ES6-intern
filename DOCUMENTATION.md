@@ -1,4 +1,4 @@
-# TỔNG HỢP TÀI LIỆU VÀ BÀI TẬP (B4 - B8)
+# TỔNG HỢP TÀI LIỆU VÀ BÀI TẬP (B4 - B9)
 
 ---
 
@@ -8,6 +8,7 @@
 3. [B6: TypeScript Integration](#b6-typescript-integration)
 4. [B7: React Advanced & Performance](#b7-react-advanced--performance)
 5. [B8: State Management (Zustand & Redux Toolkit)](#b8-state-management-zustand--redux-toolkit)
+6. [B9: Fetching với TanStack Query (React Query)](#b9-fetching-với-tanstack-query)
 
 ---
 
@@ -882,3 +883,111 @@ export const selectTotalPrice = createSelector(
 | **Độ phức tạp** | Đơn giản, linh hoạt | Cao hơn, tuân theo kiến trúc Flux nghiêm ngặt |
 | **DevTools Support** | Hỗ trợ Redux DevTools qua middleware | Hỗ trợ Redux DevTools chuẩn hóa rất tốt |
 | **Thích hợp cho** | Project vừa & nhỏ, MVP, E-commerce | System lớn, dự án Enterprise nhiều dev chung team |
+
+---
+
+# B9: FETCHING VỚI TANSTACK QUERY
+
+## 1. Bản Chất Server State vs Client State
+
+- **Client State**: Thuộc quyền kiểm soát tuyệt đối của ứng dụng client (Modal open/close, dark mode, draft form inputs). Lưu trữ trong React State, Zustand, Redux.
+- **Server State**: Thuộc quyền sở hữu của máy chủ từ xa. Client chỉ lưu cache tạm thời. Dữ liệu có thể bị thay đổi bất cứ lúc nào từ user khác.
+- **TanStack Query** là thư viện chuyên trách quản lý Server State: Caching, Deduping, Background refetching, Query Invalidation, Stale-While-Revalidate, Pagination, và Optimistic Updates.
+
+```
+┌────────────────────────────────┐       ┌────────────────────────────────┐
+│   CLIENT STATE (Zustand)       │       │  SERVER STATE (TanStack Query) │
+│ - Modal isOpen                 │       │ - Products / Users / Posts     │
+│ - Cart Drawer & Theme          │       │ - Automatic Caching & Stale    │
+│ - Filter & Search input state  │       │ - Optimistic Mutation Updates  │
+└────────────────────────────────┘       └────────────────────────────────┘
+```
+
+---
+
+## 2. Cấu Trúc QueryKey Factory & Custom Hooks
+
+Tổ chức Query Keys tập trung theo Factory Pattern để dễ dàng invalidate theo từng phân cấp:
+
+```typescript
+// Query Key Factory
+export const productKeys = {
+  all: ['products'] as const,
+  lists: () => [...productKeys.all, 'list'] as const,
+  list: (filters: object) => [...productKeys.lists(), filters] as const,
+  details: () => [...productKeys.all, 'detail'] as const,
+  detail: (id: string | number) => [...productKeys.details(), id] as const
+};
+
+// Custom useQuery Hook
+export function useProducts(page = 1, search = '') {
+  return useQuery({
+    queryKey: productKeys.list({ page, search }),
+    queryFn: async () => {
+      const res = await fetch(`/api/products?page=${page}&q=${search}`);
+      if (!res.ok) throw new Error('Network error');
+      return res.json();
+    },
+    staleTime: 10 * 1000,        // Coi là mới trong 10 giây
+    gcTime: 5 * 60 * 1000,       // Giữ cache 5 phút
+    placeholderData: keepPreviousData // Phân trang mượt mà không nhấp nháy UI
+  });
+}
+```
+
+---
+
+## 3. Mutations, Invalidation & Optimistic Updates
+
+```typescript
+export function useAddProductMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (newProduct) => fetch('/api/products', {
+      method: 'POST',
+      body: JSON.stringify(newProduct)
+    }).then(r => r.json()),
+
+    // 1. Cập nhật lạc quan (Optimistic)
+    onMutate: async (newProduct) => {
+      await queryClient.cancelQueries({ queryKey: productKeys.lists() });
+      const previousData = queryClient.getQueryData(productKeys.lists());
+
+      // Ghi đè cache tức thì
+      queryClient.setQueriesData({ queryKey: productKeys.lists() }, (old: any) => ({
+        ...old,
+        items: [{ id: `temp-${Date.now()}`, ...newProduct }, ...(old?.items || [])]
+      }));
+
+      return { previousData };
+    },
+
+    // 2. Rollback khi lỗi
+    onError: (err, newProduct, context) => {
+      if (context?.previousData) {
+        queryClient.setQueriesData({ queryKey: productKeys.lists() }, context.previousData);
+      }
+    },
+
+    // 3. Tự động đồng bộ lại cache từ Server
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+    }
+  });
+}
+```
+
+---
+
+## 4. Bảng So Sánh Toàn Diện: useEffect Fetch vs RTK Query vs TanStack Query
+
+| Tiêu chí | Fetch / Axios trong `useEffect` | RTK Query (Redux Toolkit) | TanStack Query v5 ⚡ |
+| :--- | :--- | :--- | :--- |
+| **Cơ chế Caching** | Không có (Phải tự code thủ công) | Có (gắn liền Redux store) | Tự động, tối ưu theo Query Key |
+| **Deduplication API** | Không | Có | Cực kỳ chính xác và tự động |
+| **Boilerplate** | Rất nhiều (useState loading, error...) | Trung bình | Tối giản, thanh thoát |
+| **Optimistic Updates** | Cực khó, dễ lỗi rollback | Hỗ trợ qua `onQueryStarted` | Trực quan, chuẩn hóa với `onMutate` & `onError` |
+| **Phân trang & Prefetch** | Tự quản lý phức tạp | Hỗ trợ | Sẵn có (`keepPreviousData`, `prefetchQuery`) |
+| **Khuyên dùng** | Không khuyến khích cho web app | Dự án lớn dùng Redux | **Tiêu chuẩn công nghiệp hàng đầu cho React** |
+

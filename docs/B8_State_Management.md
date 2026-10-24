@@ -1,7 +1,8 @@
 # BÁO CÁO BÀI TẬP HỌC VIÊN — B8: STATE MANAGEMENT (ZUSTAND & REDUX TOOLKIT)
 
 **Học viên thực hiện:** Intern Developer  
-**Mã bài tập:** FE-008 / B8  
+**Mã bài tập:** DEV-FE-008 / B8  
+**Task Point hoàn thành:** 8.00 / 8.00 Points  
 **Trạng thái hoàn thành:** 100% các bài tập  
 **Kết quả đạt được:** Xây dựng hoàn chỉnh Zustand Store & Redux Toolkit Store có Persistence, tối ưu Selector loại bỏ re-render thừa và lập luận chính xác tiêu chí lựa chọn thư viện cho bài toán thực tế.
 
