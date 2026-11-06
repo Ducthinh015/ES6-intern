@@ -1,4 +1,4 @@
-# TỔNG HỢP TÀI LIỆU VÀ BÀI TẬP (B4 - B9)
+# TỔNG HỢP TÀI LIỆU VÀ BÀI TẬP (B4 - B11)
 
 ---
 
@@ -9,6 +9,8 @@
 4. [B7: React Advanced & Performance](#b7-react-advanced--performance)
 5. [B8: State Management (Zustand & Redux Toolkit)](#b8-state-management-zustand--redux-toolkit)
 6. [B9: Fetching với TanStack Query (React Query)](#b9-fetching-với-tanstack-query)
+7. [B10: Next.js (App Router) + TypeScript](#b10-nextjs-app-router--typescript)
+8. [B11: Form Handling (React Hook Form + Zod + Policy Modal)](#b11-form-handling-react-hook-form--zod)
 
 ---
 
@@ -990,4 +992,33 @@ export function useAddProductMutation() {
 | **Optimistic Updates** | Cực khó, dễ lỗi rollback | Hỗ trợ qua `onQueryStarted` | Trực quan, chuẩn hóa với `onMutate` & `onError` |
 | **Phân trang & Prefetch** | Tự quản lý phức tạp | Hỗ trợ | Sẵn có (`keepPreviousData`, `prefetchQuery`) |
 | **Khuyên dùng** | Không khuyến khích cho web app | Dự án lớn dùng Redux | **Tiêu chuẩn công nghiệp hàng đầu cho React** |
+
+---
+
+# B10: NEXT.JS (APP ROUTER) + TYPESCRIPT
+
+## 1. Server Components (RSC) vs Client Components (`'use client'`)
+- **React Server Components (Mặc định trong `app/`)**: Chạy trên máy chủ, gọi trực tiếp DB/API với `async/await`, gửi **0 kB JavaScript** xuống trình duyệt.
+- **Client Components (`'use client'`)**: Dùng khi cần React Hooks (`useState`, `useEffect`, `useForm`) hoặc bắt sự kiện tương tác DOM (`onClick`, `onSubmit`).
+
+## 2. Chiến Lược Rendering: SSR, SSG, ISR & Streaming
+- **SSG (`generateStaticParams`)**: Build sẵn HTML tĩnh lúc compile time.
+- **ISR (`export const revalidate = 60`)**: Phục vụ cache tĩnh tức thì và làm mới ngầm sau mỗi chu kỳ.
+- **SSR (`export const dynamic = 'force-dynamic'`)**: Render HTML mới ở mỗi request (dùng cho Dashboard cá nhân hóa).
+
+## 3. Next.js Middleware Auth Guard (`middleware.ts`)
+- Chặn các request chưa có JWT Token hoặc chưa chấp nhận Policy khi truy cập `/dashboard` (kho bài tập B4–B9) và tự động `NextResponse.redirect('/login')`.
+
+---
+
+# B11: FORM HANDLING (REACT HOOK FORM + ZOD)
+
+## 1. Uncontrolled Hook Form & Schema Validation
+- **React Hook Form**: Quản lý form thông qua `ref` và cô lập re-render, giúp tốc độ gõ phím mượt mà (0 lần re-render thừa).
+- **Zod Schema (`z.object`, `z.infer`)**: Kiểm duyệt kiểu dữ liệu runtime và tự động sinh kiểu TypeScript tĩnh.
+
+## 2. Cross-Field Validation (`.refine`) & Policy Checkbox (`z.literal(true)`)
+- Sử dụng `.refine(data => data.password === data.confirmPassword, { path: ['confirmPassword'] })` để đối chiếu mật khẩu xác nhận.
+- Bắt buộc người dùng tích chọn Checkbox đồng ý Chính sách (`acceptPolicy: true`) hoặc bấm **"Tôi Đồng Ý"** từ bên trong **Popup Chính sách (Policy Modal)** trước khi mở khóa kho bài tập B4–B9.
+
 

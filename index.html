@@ -1,410 +1,809 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" class="dark">
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JavaScript ES6+</title>
+  <title>FE Intern Portal — Next.js + TS, Form Handling & Bài Tập B4 - B11</title>
   <link rel="stylesheet" href="css/output.css" />
 </head>
 
 <body
-  class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 antialiased font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300">
+  class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-300 min-h-screen">
 
-  <!-- Hero Section with Background Glow -->
-  <div class="relative overflow-hidden bg-slate-950 text-white">
-    <!-- Glow effects -->
-    <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl"></div>
-    <div class="absolute top-12 -right-24 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl"></div>
+  <!-- ===================================================================== -->
+  <!-- TOP STICKY AUTH BAR (Hiển thị khi ĐÃ ĐĂNG NHẬP)                        -->
+  <!-- ===================================================================== -->
+  <nav id="auth-navbar"
+    class="hidden sticky top-0 z-40 bg-slate-900/90 backdrop-blur-xl border-b border-indigo-500/30 text-white shadow-lg">
+    <div class="container mx-auto px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-black text-lg shadow-md">
+          N
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-sm md:text-base text-white" id="nav-user-name">Thịnh Intern</span>
+            <span id="nav-user-role"
+              class="px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-md">INTERN</span>
+            <span
+              class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-md">
+              ✓ Đã đồng ý Policy
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 font-mono" id="nav-user-email">intern@dev.vn</p>
+        </div>
+      </div>
 
-    <header class="relative container mx-auto px-6 py-20 lg:py-28 z-10">
-      <div class="grid lg:grid-cols-12 gap-12 items-center">
+      <div class="flex items-center gap-3">
+        <span
+          class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs font-mono text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Next.js Guard: /dashboard (B4—B11 Unlocked)
+        </span>
 
-        <div class="lg:col-span-7">
-          <span class="badge-glow mb-6">
-            DEV-FE-003
-          </span>
-          <h1
-            class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-indigo-300">
-            ES6+
+        <button id="nav-open-policy-btn" type="button"
+          class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-indigo-300 transition-colors flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Xem Popup Chính Sách
+        </button>
+
+        <button id="logout-btn" type="button"
+          class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-colors shadow-md flex items-center gap-1.5 cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Đăng xuất
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================================================================== -->
+  <!-- VIEW 1: AUTH PORTAL (BÀI TẬP 10 & 11: NEXT.JS + TS & FORM HANDLING)   -->
+  <!-- Hiển thị khi CHƯA ĐĂNG NHẬP để người dùng Đăng ký / Đăng nhập + Policy-->
+  <!-- ===================================================================== -->
+  <section id="auth-portal-view" class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 overflow-hidden bg-slate-950 text-white">
+    <!-- Background Glow Effects -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-10 -right-24 w-96 h-96 bg-purple-600/25 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 container mx-auto max-w-6xl">
+      <div class="grid lg:grid-cols-12 gap-10 items-center">
+
+        <!-- Left Info Column: Giới thiệu Bài tập 10 & 11 -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold tracking-wider uppercase">
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
+            BÀI TẬP 10 & 11 • NEXT.JS + TS & FORM HANDLING
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-purple-300">
+            Cổng Đăng Nhập & Mở Khóa Bài Tập B4 — B9
           </h1>
 
-          <div class="flex flex-wrap gap-3">
-            <span class="badge-chip">JS Scope & Closure</span>
-            <span class="badge-chip">B4: React Fundamentals</span>
-            <span class="badge-chip">B5: Internal Architecture</span>
-            <span class="badge-chip">B6: TypeScript Integration</span>
-            <span class="badge-chip">B7: Advanced Performance</span>
-            <span class="badge-chip">B8: State Management</span>
-            <span class="badge-chip">B9: TanStack Query</span>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Trang xác thực này là sản phẩm thực hành kết hợp giữa <strong class="text-indigo-300">Bài 10 (Next.js App Router + TypeScript Middleware Guard)</strong> và <strong class="text-purple-300">Bài 11 (Form Handling với React Hook Form + Zod Schema & Policy Modal)</strong>.
+          </p>
+
+          <!-- Feature Highlights of B10 & B11 -->
+          <div class="space-y-3 pt-2">
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold shrink-0">
+                B10
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-white">Next.js + TypeScript Auth Middleware</h3>
+                <p class="text-xs text-slate-400 mt-1">
+                  Bảo vệ route <code class="text-indigo-300">/dashboard</code>. Chỉ khi đăng nhập và tích chọn đồng ý Policy mới mở khóa danh sách các bài tập từ <strong>B4 đến B9</strong> (kèm B10, B11).
+                </p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-3.5">
+              <div class="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold shrink-0">
+                B11
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-white">Form Handling + Nút Tích Policy & Popup Tự Chế</h3>
+                <p class="text-xs text-slate-400 mt-1">
+                  Kiểm tra định dạng Email, độ mạnh mật khẩu, khớp mật khẩu xác nhận (<code class="text-purple-300">.refine</code>) và bắt buộc tích chọn <strong>Chấp nhận Chính sách</strong> (đồng bộ 2 chiều với Popup).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Demo Action & Docs Links -->
+          <div class="pt-2 flex flex-wrap gap-3">
+            <button id="open-policy-preview-btn" type="button"
+              class="px-4 py-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer">
+              📜 Xem Ngay Popup Chính Sách Tự Chế
+            </button>
+            <a href="docs/B10_NextJS_TypeScript.md" target="_blank"
+              class="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold transition-all">
+              📄 Docs B10 (Next+TS)
+            </a>
+            <a href="docs/B11_Form_Handling.md" target="_blank"
+              class="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold transition-all">
+              📄 Docs B11 (Form)
+            </a>
           </div>
         </div>
 
-        <div class="lg:col-span-5">
-          <div class="bg-white/10 border border-white/20 p-8 rounded-3xl backdrop-blur-md shadow-2xl">
-            <div class="flex justify-between items-end mb-4">
-              <span class="text-slate-300 font-medium">Tiến độ bài tập</span>
-              <strong id="progress-label" class="text-3xl font-bold text-white">0%</strong>
+        <!-- Right Form Column: Đăng nhập / Đăng ký Card -->
+        <div class="lg:col-span-7">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl relative">
+
+            <!-- Top Tabs: Đăng nhập vs Đăng ký + Quick Fill -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+              <div class="inline-flex p-1 rounded-2xl bg-slate-950 border border-slate-800" id="auth-mode-tabs">
+                <button type="button" data-auth-mode="login"
+                  class="px-5 py-2 rounded-xl text-sm font-bold transition-all bg-indigo-600 text-white shadow-md cursor-pointer">
+                  Đăng Nhập
+                </button>
+                <button type="button" data-auth-mode="register"
+                  class="px-5 py-2 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white cursor-pointer">
+                  Đăng Ký Tài Khoản
+                </button>
+              </div>
+
+              <button id="fill-demo-btn" type="button"
+                class="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                title="Tự động điền thông tin mẫu để test nhanh">
+                ⚡ Điền nhanh Tài khoản Demo
+              </button>
             </div>
-            <div class="h-3 w-full bg-slate-800/50 rounded-full overflow-hidden mb-4 shadow-inner">
-              <div id="progress-bar"
-                class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-0 transition-all duration-500 ease-out rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]">
+
+            <!-- Banner thông báo trạng thái Form -->
+            <div id="auth-alert-box" class="hidden mb-5 p-4 rounded-2xl border text-xs font-medium"></div>
+
+            <!-- FORM ĐĂNG NHẬP / ĐĂNG KÝ (B11 Form Handling) -->
+            <form id="auth-form" noValidate class="space-y-4">
+
+              <!-- Field: Họ và tên (Chỉ hiện ở chế độ Đăng ký) -->
+              <div id="field-fullname-wrap" class="hidden">
+                <div class="flex justify-between items-center mb-1.5">
+                  <label for="input-fullname" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Họ và tên học viên <span class="text-rose-400">*</span>
+                  </label>
+                  <span class="text-[11px] font-mono text-slate-500">z.string().min(3)</span>
+                </div>
+                <input id="input-fullname" name="fullName" type="text" placeholder="Ví dụ: Nguyễn Văn Thịnh"
+                  class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
+                <p id="error-fullName" class="hidden text-xs text-rose-400 mt-1.5 font-medium"></p>
+              </div>
+
+              <!-- Grid Email & Role -->
+              <div class="grid sm:grid-cols-12 gap-4">
+                <div id="field-email-col" class="sm:col-span-12">
+                  <div class="flex justify-between items-center mb-1.5">
+                    <label for="input-email" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                      Địa chỉ Email <span class="text-rose-400">*</span>
+                    </label>
+                    <span class="text-[11px] font-mono text-slate-500">z.string().email()</span>
+                  </div>
+                  <input id="input-email" name="email" type="email" placeholder="intern@dev.vn"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
+                  <p id="error-email" class="hidden text-xs text-rose-400 mt-1.5 font-medium"></p>
+                </div>
+
+                <!-- Field: Role (Chỉ hiện ở chế độ Đăng ký) -->
+                <div id="field-role-wrap" class="hidden sm:col-span-5">
+                  <div class="flex justify-between items-center mb-1.5">
+                    <label for="input-role" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                      Vai trò (Role)
+                    </label>
+                    <span class="text-[11px] font-mono text-slate-500">TS Union</span>
+                  </div>
+                  <select id="input-role" name="role"
+                    class="w-full px-3.5 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors">
+                    <option value="INTERN">INTERN (Thực tập sinh)</option>
+                    <option value="DEVELOPER">DEVELOPER (Lập trình viên)</option>
+                    <option value="MENTOR">MENTOR (Người hướng dẫn)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Field: Mật khẩu -->
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label for="input-password" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Mật khẩu <span class="text-rose-400">*</span>
+                  </label>
+                  <span class="text-[11px] font-mono text-slate-500">min(6), chữ + số</span>
+                </div>
+                <div class="relative">
+                  <input id="input-password" name="password" type="password" placeholder="Nhập mật khẩu (VD: Password123)"
+                    class="w-full px-4 py-3 pr-20 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
+                  <button id="toggle-password-btn" type="button"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-semibold text-slate-300 cursor-pointer">
+                    Hiện
+                  </button>
+                </div>
+                <p id="error-password" class="hidden text-xs text-rose-400 mt-1.5 font-medium"></p>
+
+                <!-- Thanh đo độ mạnh mật khẩu (Password Strength Meter) -->
+                <div class="mt-2.5 flex items-center justify-between gap-3">
+                  <div class="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="password-strength-bar" class="h-full w-0 bg-slate-600 transition-all duration-300"></div>
+                  </div>
+                  <span id="password-strength-label" class="text-[11px] font-mono text-slate-400 shrink-0">Độ mạnh: Chưa nhập</span>
+                </div>
+              </div>
+
+              <!-- Field: Nhập lại mật khẩu (Chỉ hiện khi Đăng ký) -->
+              <div id="field-confirm-wrap" class="hidden">
+                <div class="flex justify-between items-center mb-1.5">
+                  <label for="input-confirm-password" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Xác nhận lại mật khẩu <span class="text-rose-400">*</span>
+                  </label>
+                  <span class="text-[11px] font-mono text-slate-500">.refine(pass === confirm)</span>
+                </div>
+                <input id="input-confirm-password" name="confirmPassword" type="password"
+                  placeholder="Nhập lại chính xác mật khẩu phía trên"
+                  class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
+                <p id="error-confirmPassword" class="hidden text-xs text-rose-400 mt-1.5 font-medium"></p>
+              </div>
+
+              <!-- ============================================================ -->
+              <!-- NÚT TÍCH CHẤP NHẬN POLICY + MỞ POPUP CHÍNH SÁCH TỰ CHẾ        -->
+              <!-- ============================================================ -->
+              <div id="policy-box-container"
+                class="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 transition-all">
+                <div class="flex items-start gap-3">
+                  <input id="input-accept-policy" name="acceptPolicy" type="checkbox"
+                    class="mt-1 w-5 h-5 rounded border-slate-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer accent-indigo-600" />
+                  <div class="flex-1 text-xs leading-relaxed">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                      <label for="input-accept-policy" class="font-bold text-slate-200 cursor-pointer">
+                        Chấp nhận Chính sách & Điều khoản Học viên <span class="text-rose-400">*</span>
+                      </label>
+                      <span id="policy-status-badge"
+                        class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        Chưa tích chọn
+                      </span>
+                    </div>
+                    <p class="text-slate-400">
+                      Tôi xác nhận đã đọc hiểu và đồng ý tuân thủ
+                      <button id="open-policy-modal-link" type="button"
+                        class="text-indigo-400 hover:text-indigo-300 underline font-bold cursor-pointer">
+                        Chính sách Học viên & Quy tắc TypeScript/Form (Bấm để mở Popup Chính sách)
+                      </button>
+                      để mở khóa các bài tập từ <strong>B4 — B9</strong>.
+                    </p>
+                  </div>
+                </div>
+                <p id="error-acceptPolicy" class="hidden text-xs text-rose-400 mt-2 font-semibold pl-8"></p>
+              </div>
+
+              <!-- Nút Submit Đăng nhập / Đăng ký -->
+              <button id="auth-submit-btn" type="submit"
+                class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span id="auth-submit-text">Đăng Nhập & Mở Khóa Các Bài Tập (B4 — B9)</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
+            </form>
+
+            <!-- Live Form State Inspector (Minh họa B11 React Hook Form State) -->
+            <div class="mt-6 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
+              <div>
+                <span class="text-indigo-400 font-bold">B11 FormState:</span>
+                mode=<span id="inspector-mode" class="text-emerald-400">"login"</span> |
+                policy=<span id="inspector-policy" class="text-amber-400">false</span> |
+                valid=<span id="inspector-valid" class="text-rose-400">false</span>
+              </div>
+              <div class="text-slate-500">
+                Demo Account: <code class="text-slate-300">intern@dev.vn</code> / <code class="text-slate-300">Password123</code>
               </div>
             </div>
-            <p id="progress-copy" class="text-sm text-slate-400">Bắt đầu từ phần nền tảng JavaScript.</p>
+
           </div>
         </div>
 
       </div>
-    </header>
-  </div>
+    </div>
+  </section>
 
-  <main class="container mx-auto px-6 py-16 grid gap-10">
+  <!-- ===================================================================== -->
+  <!-- POPUP CHÍNH SÁCH TỰ CHẾ (CUSTOM POLICY MODAL)                         -->
+  <!-- ===================================================================== -->
+  <div id="policy-modal" role="dialog" aria-modal="true" aria-labelledby="policy-modal-title"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md">
+    <div
+      class="bg-slate-900 border border-indigo-500/40 rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
-    <!-- Stats Section -->
-    <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 -mt-24 relative z-20">
-      <article class="card-stat">
-        <strong class="block text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">16</strong>
-        <span class="text-slate-500 dark:text-slate-400 font-medium">chặng bài tập (B1 - B9)</span>
-      </article>
-      <article class="card-stat">
-        <strong class="block text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1">06</strong>
-        <span class="text-slate-500 dark:text-slate-400 font-medium">thư mục docs chi tiết</span>
-      </article>
-      <article class="card-stat">
-        <strong class="block text-4xl font-bold text-blue-600 dark:text-blue-400 mb-1">React</strong>
-        <span class="text-slate-500 dark:text-slate-400 font-medium">Hooks, Form, Lifecycle</span>
-      </article>
-      <article class="card-stat">
-        <strong class="block text-4xl font-bold text-teal-600 dark:text-teal-400 mb-1">TS/State/Query</strong>
-        <span class="text-slate-500 dark:text-slate-400 font-medium">Zustand, RTK, TanStack</span>
-      </article>
-    </section>
+      <!-- Modal Header -->
+      <div class="p-6 bg-gradient-to-r from-indigo-950 via-slate-900 to-purple-950 border-b border-slate-800 flex items-start justify-between gap-4">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-[11px] font-bold uppercase tracking-wider mb-1.5">
+            POPUP CHÍNH SÁCH TỰ CHẾ • DEV-FE POLICY v2.6
+          </span>
+          <h2 id="policy-modal-title" class="text-xl sm:text-2xl font-extrabold text-white">
+            Chính Sách Học Viên & Quy Chuẩn Code (B4 — B11)
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Vui lòng đọc kỹ 5 điều khoản vui nhộn nhưng bắt buộc bên dưới trước khi truy cập hệ thống bài tập.
+          </p>
+        </div>
+        <button id="close-policy-modal-x" type="button"
+          class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+          title="Đóng Popup">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-    <section class="grid lg:grid-cols-12 gap-10">
-      <!-- Roadmap Sidebar -->
-      <article class="lg:col-span-5 card-glass self-start sticky top-6">
-        <div class="flex justify-between items-start mb-8 border-b border-slate-100 dark:border-slate-700 pb-6">
-          <div>
-            <small class="badge-lab">ROADMAP</small>
-            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">16 chặng cần hoàn thành (B1-B9)</h2>
-          </div>
-          <button id="reset-btn" class="btn-icon" title="Reset Tiến Độ">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      <!-- Modal Body: Danh sách 5 Điều khoản tự chế -->
+      <div id="policy-clauses-list" class="p-6 overflow-y-auto space-y-4 text-sm text-slate-300">
+        <!-- Populated by js/app.js from CUSTOM_POLICY_CLAUSES -->
+      </div>
+
+      <!-- Modal Footer: Nút tự động tích chọn Checkbox & Đóng -->
+      <div class="p-5 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-xs text-slate-400">
+          💡 Bấm <strong class="text-emerald-400">"Tôi Đồng Ý"</strong> sẽ tự động tích chọn ô Policy trên Form!
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="close-policy-modal-btn" type="button"
+            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer">
+            Đóng lại
+          </button>
+          <button id="accept-policy-modal-btn" type="button"
+            class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/25 transition-all flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clip-rule="evenodd" />
             </svg>
+            Tôi Đã Đọc Hiểu & Đồng Ý Chính Sách
           </button>
         </div>
-        <div id="task-list" class="space-y-1">
-          <!-- JS will populate tasks here -->
-        </div>
-      </article>
+      </div>
 
-      <div class="lg:col-span-7 grid gap-10">
-        <!-- Lab 01: Closure Counter -->
-        <article class="card-glass">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/20 rounded-bl-full -z-10"></div>
-          <div class="flex justify-between items-start mb-8">
-            <div>
-              <small class="badge-lab">LAB 01</small>
-              <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Closure Counter</h2>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- VIEW 2: AUTHENTICATED DASHBOARD (HIỂN THỊ CÁC BÀI TẬP 4-9 & 10-11)    -->
+  <!-- Chỉ hiển thị sau khi người dùng Đăng nhập & Chấp nhận Policy          -->
+  <!-- ===================================================================== -->
+  <div id="dashboard-view" class="hidden">
+
+    <!-- Hero Section with Background Glow -->
+    <div class="relative overflow-hidden bg-slate-950 text-white">
+      <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl"></div>
+      <div class="absolute top-12 -right-24 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl"></div>
+
+      <header class="relative container mx-auto px-6 py-16 lg:py-20 z-10">
+        <div class="grid lg:grid-cols-12 gap-10 items-center">
+
+          <div class="lg:col-span-7">
+            <span class="badge-glow mb-4">
+              DEV-FE-003 → DEV-FE-011 • AUTHENTICATED PORTAL
+            </span>
+            <h1
+              class="text-4xl lg:text-6xl font-extrabold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-indigo-300">
+              Kho Bài Tập B4 — B9 & Next.js / Form (B10 — B11)
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base mb-6 max-w-2xl">
+              Chào mừng bạn đã đăng nhập thành công! Bên dưới là toàn bộ các bài tập từ <strong class="text-white">Bài 4 đến Bài 9</strong> của hiện tại, cùng với <strong class="text-indigo-300">Bài 10 (Next.js + TypeScript)</strong> và <strong class="text-purple-300">Bài 11 (Form Handling)</strong>.
+            </p>
+
+            <div class="flex flex-wrap gap-2.5">
+              <span class="badge-chip">B4: React Fundamentals</span>
+              <span class="badge-chip">B5: Internal Architecture</span>
+              <span class="badge-chip">B6: TypeScript Integration</span>
+              <span class="badge-chip">B7: Advanced Performance</span>
+              <span class="badge-chip">B8: State Management</span>
+              <span class="badge-chip">B9: TanStack Query</span>
+              <span class="badge-chip border-indigo-400/50 bg-indigo-500/20 text-indigo-200">B10: Next.js + TS</span>
+              <span class="badge-chip border-purple-400/50 bg-purple-500/20 text-purple-200">B11: Form Handling</span>
             </div>
-            <span class="badge-info">Scope → state</span>
           </div>
 
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="card-terminal group">
-              <div class="absolute top-3 right-3 flex space-x-1.5">
-                <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+          <div class="lg:col-span-5">
+            <div class="bg-white/10 border border-white/20 p-7 rounded-3xl backdrop-blur-md shadow-2xl">
+              <div class="flex justify-between items-end mb-4">
+                <span class="text-slate-300 font-medium">Tiến độ toàn khóa (B1 - B11)</span>
+                <strong id="progress-label" class="text-3xl font-bold text-white">0%</strong>
               </div>
-              <pre class="text-slate-300 text-sm font-mono leading-relaxed mt-2"><code class="language-js"><span class="text-purple-400">function</span> <span class="text-blue-400">counter</span>() {
+              <div class="h-3 w-full bg-slate-800/50 rounded-full overflow-hidden mb-4 shadow-inner">
+                <div id="progress-bar"
+                  class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-0 transition-all duration-500 ease-out rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]">
+                </div>
+              </div>
+              <p id="progress-copy" class="text-sm text-slate-400">Đã mở khóa đầy đủ các bài tập từ B4 - B9 và B10 - B11.</p>
+            </div>
+          </div>
+
+        </div>
+      </header>
+    </div>
+
+    <main class="container mx-auto px-6 py-12 grid gap-12">
+
+      <!-- ================================================================= -->
+      <!-- SECTION CHÍNH: CÁC BÀI TẬP TỪ B4 - B9 (VÀ B10 - B11)              -->
+      <!-- Đặt ngay đầu Dashboard để đăng nhập vào là thấy ngay!             -->
+      <!-- ================================================================= -->
+      <section id="b4-b9-exercises" class="card-glass border-2 border-indigo-500/40 shadow-2xl">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <small class="badge-lab">KHO BÀI TẬP ĐÃ MỞ KHÓA SAU ĐĂNG NHẬP</small>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                B4 → B9 + B10, B11 Sẵn sàng
+              </span>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-800 dark:text-white">
+              Danh Sách Các Bài Tập Từ B4 — B9 (Kèm B10: Next.js + TS & B11: Form Handling)
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Bấm vào từng tab bài tập (B4 → B9 hoặc B10, B11) bên dưới để xem nội dung, chạy mô phỏng trực tiếp và đọc báo cáo chi tiết.
+            </p>
+          </div>
+          <a id="open-docs-btn" href="DOCUMENTATION.md" target="_blank"
+            class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold text-sm shadow-md hover:opacity-95 transition-opacity flex items-center gap-2 shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+              </path>
+            </svg>
+            Mở Full Docs Tổng Hợp (DOCUMENTATION.md)
+          </a>
+        </div>
+
+        <!-- Quick Overview Cards cho các bài tập B4 - B9 (và B10 - B11) -->
+        <div class="mb-8">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-3">
+            Tất cả các bài tập từ B4 — B9 hiện tại & B10 — B11 mới:
+          </h3>
+          <div id="b4-b9-quick-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <!-- JS renders quick jump cards for B4, B5, B6, B7, B8, B9, B10, B11 -->
+          </div>
+        </div>
+
+        <!-- Navigation Tabs B4-B11 -->
+        <div class="flex flex-wrap gap-2 mb-8" id="lesson-tabs">
+          <button data-lesson="B4" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-md cursor-pointer">B4: React Fundamentals</button>
+          <button data-lesson="B5" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">B5: Module Nội Bộ</button>
+          <button data-lesson="B6" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">B6: TypeScript</button>
+          <button data-lesson="B7" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">B7: Advanced Performance</button>
+          <button data-lesson="B8" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">B8: State Management</button>
+          <button data-lesson="B9" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">B9: TanStack Query</button>
+          <button data-lesson="B10" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">B10: Next.js + TS</button>
+          <button data-lesson="B11" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 cursor-pointer">B11: Form Handling</button>
+        </div>
+
+        <!-- Active Lesson Panel Container -->
+        <div id="lesson-panel" class="grid lg:grid-cols-12 gap-8">
+          <!-- Content will be dynamically updated by js/app.js -->
+        </div>
+      </section>
+
+      <!-- Stats Section -->
+      <section class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <article class="card-stat">
+          <strong class="block text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-1">18</strong>
+          <span class="text-slate-500 dark:text-slate-400 font-medium">chặng bài tập (B1 - B11)</span>
+        </article>
+        <article class="card-stat">
+          <strong class="block text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1">08</strong>
+          <span class="text-slate-500 dark:text-slate-400 font-medium">báo cáo docs chi tiết (B4-B11)</span>
+        </article>
+        <article class="card-stat">
+          <strong class="block text-4xl font-bold text-blue-600 dark:text-blue-400 mb-1">Next.js + TS</strong>
+          <span class="text-slate-500 dark:text-slate-400 font-medium">App Router, RSC, Middleware</span>
+        </article>
+        <article class="card-stat">
+          <strong class="block text-4xl font-bold text-teal-600 dark:text-teal-400 mb-1">Form + Zod</strong>
+          <span class="text-slate-500 dark:text-slate-400 font-medium">Hook Form, Policy Popup</span>
+        </article>
+      </section>
+
+      <section class="grid lg:grid-cols-12 gap-10">
+        <!-- Roadmap Sidebar -->
+        <article class="lg:col-span-5 card-glass self-start sticky top-20">
+          <div class="flex justify-between items-start mb-8 border-b border-slate-100 dark:border-slate-700 pb-6">
+            <div>
+              <small class="badge-lab">ROADMAP</small>
+              <h2 class="text-2xl font-bold text-slate-800 dark:text-white">18 chặng cần hoàn thành (B1-B11)</h2>
+            </div>
+            <button id="reset-btn" class="btn-icon" title="Reset Tiến Độ">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+          <div id="task-list" class="space-y-1">
+            <!-- JS will populate tasks here -->
+          </div>
+        </article>
+
+        <div class="lg:col-span-7 grid gap-10">
+          <!-- Lab 01: Closure Counter -->
+          <article class="card-glass">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/20 rounded-bl-full -z-10"></div>
+            <div class="flex justify-between items-start mb-8">
+              <div>
+                <small class="badge-lab">LAB 01</small>
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Closure Counter</h2>
+              </div>
+              <span class="badge-info">Scope → state</span>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="card-terminal group">
+                <div class="absolute top-3 right-3 flex space-x-1.5">
+                  <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                  <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                  <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                </div>
+                <pre class="text-slate-300 text-sm font-mono leading-relaxed mt-2"><code class="language-js"><span class="text-purple-400">function</span> <span class="text-blue-400">counter</span>() {
   <span class="text-purple-400">let</span> count = <span class="text-orange-400">0</span>;
   <span class="text-purple-400">return</span> () => ++count;
 }
 
 <span class="text-purple-400">const</span> inc = <span class="text-blue-400">counter</span>();</code></pre>
+              </div>
+
+              <div
+                class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center border border-slate-100 dark:border-slate-700">
+                <span class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Giá trị đang được closure
+                  giữ</span>
+                <strong id="counter-value"
+                  class="text-6xl font-black text-indigo-600 dark:text-indigo-400 my-4 drop-shadow-sm">0</strong>
+                <button id="counter-btn" class="btn-primary">
+                  inc()
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Lab 02: Array Methods -->
+          <article class="card-glass">
+            <small class="badge-lab">LAB 02</small>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Array Methods Playground</h2>
+
+            <div class="flex flex-wrap gap-3 mb-6" id="array-actions">
+              <button data-mode="all" class="btn-secondary">Tất cả</button>
+              <button data-mode="adult" class="btn-secondary">filter ≥18</button>
+              <button data-mode="active" class="btn-secondary">filter active</button>
+              <button data-mode="names" class="btn-secondary">map names</button>
+            </div>
+
+            <div id="users-view" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6 min-h-[120px]">
+              <!-- Users populated here -->
             </div>
 
             <div
-              class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center border border-slate-100 dark:border-slate-700">
-              <span class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Giá trị đang được closure
-                giữ</span>
-              <strong id="counter-value"
-                class="text-6xl font-black text-indigo-600 dark:text-indigo-400 my-4 drop-shadow-sm">0</strong>
-              <button id="counter-btn" class="btn-primary">
-                inc()
-              </button>
+              class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-5 flex items-center justify-between">
+              <span class="text-indigo-800 dark:text-indigo-300 font-medium"><strong
+                  class="bg-indigo-200 dark:bg-indigo-800 px-2 py-0.5 rounded text-indigo-900 dark:text-indigo-100 mr-2">reduce</strong>Tổng
+                tuổi:</span>
+              <span id="age-total" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">0</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Lab 03: Event Loop -->
+      <section class="card-glass grid lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-5">
+          <small class="badge-lab">LAB 03</small>
+          <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-4">Event Loop Visualizer</h2>
+          <p class="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+            Trải nghiệm cách JS engine xử lý đồng bộ và bất đồng bộ. <strong
+              class="text-slate-800 dark:text-slate-200">Sync</strong> chạy trước, sau đó <strong
+              class="text-purple-600 dark:text-purple-400">Microtask</strong> (Promise) được ưu tiên xử lý trước <strong
+              class="text-orange-600 dark:text-orange-400">Task Queue</strong> (setTimeout).
+          </p>
+          <button id="event-btn" class="btn-action">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                clip-rule="evenodd" />
+            </svg>
+            Chạy mô phỏng
+          </button>
+        </div>
+
+        <div class="lg:col-span-7 space-y-6">
+          <div class="grid sm:grid-cols-3 gap-4">
+            <div class="card-queue group bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600">
+              <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+              <strong class="block text-sm text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Call
+                Stack</strong>
+              <p
+                class="font-mono text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700 mb-2">
+                console.log(1)</p>
+              <p
+                class="font-mono text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700">
+                console.log(4)</p>
+            </div>
+            <div class="card-queue group bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800/50">
+              <div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+              <strong
+                class="block text-sm text-purple-600 dark:text-purple-400 mb-3 uppercase tracking-wider">Microtask</strong>
+              <p
+                class="font-mono text-sm text-purple-900 dark:text-purple-200 bg-white/60 dark:bg-purple-900/40 p-2 rounded border border-purple-100 dark:border-purple-800">
+                Promise.then → 3</p>
+            </div>
+            <div class="card-queue group bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-800/50">
+              <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+              <strong class="block text-sm text-orange-600 dark:text-orange-400 mb-3 uppercase tracking-wider">Task
+                Queue</strong>
+              <p
+                class="font-mono text-sm text-orange-900 dark:text-orange-200 bg-white/60 dark:bg-orange-900/40 p-2 rounded border border-orange-100 dark:border-orange-800">
+                setTimeout → 2</p>
             </div>
           </div>
+
+          <div class="bg-slate-900 rounded-2xl p-6 flex items-center justify-between shadow-inner">
+            <small class="text-slate-400 font-mono text-xs uppercase tracking-widest">OUTPUT TERMINAL</small>
+            <strong id="event-output" class="text-2xl font-mono text-green-400 tracking-widest">?</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid lg:grid-cols-2 gap-10">
+        <!-- Lab 04: Async -->
+        <article class="card-glass flex flex-col">
+          <small class="badge-lab">LAB 04</small>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Async: Tuần tự vs Song song</h2>
+
+          <div class="grid sm:grid-cols-2 gap-4 mb-6 flex-1">
+            <button id="seq-btn" class="btn-compare group">
+              <div
+                class="absolute top-0 left-0 w-full h-1 bg-amber-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left">
+              </div>
+              <strong class="block text-lg text-slate-800 dark:text-white mb-1">Tuần tự</strong>
+              <span
+                class="text-xs text-slate-500 dark:text-slate-400 block mb-6 font-mono bg-white dark:bg-slate-800 inline-block px-2 py-1 rounded">await
+                A → await B</span>
+              <b id="seq-time" class="block text-3xl font-bold text-amber-500">—</b>
+            </button>
+
+            <button id="par-btn" class="btn-compare group">
+              <div
+                class="absolute top-0 left-0 w-full h-1 bg-emerald-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left">
+              </div>
+              <strong class="block text-lg text-slate-800 dark:text-white mb-1">Promise.all</strong>
+              <span
+                class="text-xs text-slate-500 dark:text-slate-400 block mb-6 font-mono bg-white dark:bg-slate-800 inline-block px-2 py-1 rounded">A
+                + B song song</span>
+              <b id="par-time" class="block text-3xl font-bold text-emerald-500">—</b>
+            </button>
+          </div>
+          <p id="async-note"
+            class="text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-50 dark:bg-slate-900 py-3 rounded-xl">
+            Bấm hai ô để mô phỏng thời gian chạy.</p>
         </article>
 
-        <!-- Lab 02: Array Methods -->
+        <!-- Lab 05: ES Modules -->
         <article class="card-glass">
-          <small class="badge-lab">LAB 02</small>
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Array Methods Playground</h2>
-
-          <div class="flex flex-wrap gap-3 mb-6" id="array-actions">
-            <button data-mode="all" class="btn-secondary">Tất cả</button>
-            <button data-mode="adult" class="btn-secondary">filter ≥18</button>
-            <button data-mode="active" class="btn-secondary">filter active</button>
-            <button data-mode="names" class="btn-secondary">map names</button>
-          </div>
-
-          <div id="users-view" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6 min-h-[120px]">
-            <!-- Users populated here -->
-          </div>
-
           <div
-            class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-5 flex items-center justify-between">
-            <span class="text-indigo-800 dark:text-indigo-300 font-medium"><strong
-                class="bg-indigo-200 dark:bg-indigo-800 px-2 py-0.5 rounded text-indigo-900 dark:text-indigo-100 mr-2">reduce</strong>Tổng
-              tuổi:</span>
-            <span id="age-total" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">0</span>
+            class="absolute -bottom-10 -right-10 w-48 h-48 bg-indigo-50 dark:bg-indigo-900/20 rounded-full blur-2xl -z-10">
           </div>
-        </article>
-      </div>
-    </section>
+          <small class="badge-lab">LAB 05</small>
+          <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">ES Modules → Cấu trúc Project</h2>
 
-    <!-- Lab 03: Event Loop -->
-    <section class="card-glass grid lg:grid-cols-12 gap-10 items-center">
-      <div class="lg:col-span-5">
-        <small class="badge-lab">LAB 03</small>
-        <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-4">Event Loop Visualizer</h2>
-        <p class="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-          Trải nghiệm cách JS engine xử lý đồng bộ và bất đồng bộ. <strong
-            class="text-slate-800 dark:text-slate-200">Sync</strong> chạy trước, sau đó <strong
-            class="text-purple-600 dark:text-purple-400">Microtask</strong> (Promise) được ưu tiên xử lý trước <strong
-            class="text-orange-600 dark:text-orange-400">Task Queue</strong> (setTimeout).
-        </p>
-        <button id="event-btn" class="btn-action">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-              clip-rule="evenodd" />
-          </svg>
-          Chạy mô phỏng
-        </button>
-      </div>
-
-      <div class="lg:col-span-7 space-y-6">
-        <div class="grid sm:grid-cols-3 gap-4">
-          <div class="card-queue group bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600">
-            <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-            <strong class="block text-sm text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Call
-              Stack</strong>
-            <p
-              class="font-mono text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700 mb-2">
-              console.log(1)</p>
-            <p
-              class="font-mono text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700">
-              console.log(4)</p>
-          </div>
-          <div class="card-queue group bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800/50">
-            <div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
-            <strong
-              class="block text-sm text-purple-600 dark:text-purple-400 mb-3 uppercase tracking-wider">Microtask</strong>
-            <p
-              class="font-mono text-sm text-purple-900 dark:text-purple-200 bg-white/60 dark:bg-purple-900/40 p-2 rounded border border-purple-100 dark:border-purple-800">
-              Promise.then → 3</p>
-          </div>
-          <div class="card-queue group bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-800/50">
-            <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
-            <strong class="block text-sm text-orange-600 dark:text-orange-400 mb-3 uppercase tracking-wider">Task
-              Queue</strong>
-            <p
-              class="font-mono text-sm text-orange-900 dark:text-orange-200 bg-white/60 dark:bg-orange-900/40 p-2 rounded border border-orange-100 dark:border-orange-800">
-              setTimeout → 2</p>
-          </div>
-        </div>
-
-        <div class="bg-slate-900 rounded-2xl p-6 flex items-center justify-between shadow-inner">
-          <small class="text-slate-400 font-mono text-xs uppercase tracking-widest">OUTPUT TERMINAL</small>
-          <strong id="event-output" class="text-2xl font-mono text-green-400 tracking-widest">?</strong>
-        </div>
-      </div>
-    </section>
-
-    <section class="grid lg:grid-cols-2 gap-10">
-      <!-- Lab 04: Async -->
-      <article class="card-glass flex flex-col">
-        <small class="badge-lab">LAB 04</small>
-        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Async: Tuần tự vs Song song</h2>
-
-        <div class="grid sm:grid-cols-2 gap-4 mb-6 flex-1">
-          <button id="seq-btn" class="btn-compare group">
-            <div
-              class="absolute top-0 left-0 w-full h-1 bg-amber-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left">
-            </div>
-            <strong class="block text-lg text-slate-800 dark:text-white mb-1">Tuần tự</strong>
-            <span
-              class="text-xs text-slate-500 dark:text-slate-400 block mb-6 font-mono bg-white dark:bg-slate-800 inline-block px-2 py-1 rounded">await
-              A → await B</span>
-            <b id="seq-time" class="block text-3xl font-bold text-amber-500">—</b>
-          </button>
-
-          <button id="par-btn" class="btn-compare group">
-            <div
-              class="absolute top-0 left-0 w-full h-1 bg-emerald-400 scale-x-0 group-hover:scale-x-100 transition-transform origin-left">
-            </div>
-            <strong class="block text-lg text-slate-800 dark:text-white mb-1">Promise.all</strong>
-            <span
-              class="text-xs text-slate-500 dark:text-slate-400 block mb-6 font-mono bg-white dark:bg-slate-800 inline-block px-2 py-1 rounded">A
-              + B song song</span>
-            <b id="par-time" class="block text-3xl font-bold text-emerald-500">—</b>
-          </button>
-        </div>
-        <p id="async-note"
-          class="text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-50 dark:bg-slate-900 py-3 rounded-xl">
-          Bấm hai ô để mô phỏng thời gian chạy.</p>
-      </article>
-
-      <!-- Lab 05: ES Modules -->
-      <article class="card-glass">
-        <div
-          class="absolute -bottom-10 -right-10 w-48 h-48 bg-indigo-50 dark:bg-indigo-900/20 rounded-full blur-2xl -z-10">
-        </div>
-        <small class="badge-lab">LAB 05</small>
-        <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">ES Modules → Cấu trúc Project</h2>
-
-        <div class="card-terminal mb-6">
-          <pre
-            class="text-slate-300 text-sm font-mono leading-loose"><code><span class="text-indigo-400">src/</span>
+          <div class="card-terminal mb-6">
+            <pre
+              class="text-slate-300 text-sm font-mono leading-loose"><code><span class="text-indigo-400">src/</span>
 ├── <span class="text-green-400">app.js</span>      <span class="text-slate-500 text-xs">// Entry point</span>
 ├── <span class="text-yellow-400">math.js</span>     <span class="text-slate-500 text-xs">// Utils, named exports</span>
 ├── <span class="text-blue-400">users.js</span>    <span class="text-slate-500 text-xs">// Data fetching</span>
 └── <span class="text-purple-400">utils.js</span>    <span class="text-slate-500 text-xs">// DOM Helpers</span></code></pre>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-          <span class="badge-tag">import</span>
-          <span class="badge-tag">export</span>
-          <span class="badge-tag">default</span>
-          <span class="badge-tag">named export</span>
-        </div>
-      </article>
-    </section>
-
-    <!-- Section B4-B9: Advanced Frontend Modules & Docs Viewer -->
-    <section class="card-glass border border-indigo-500/30">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-slate-700">
-        <div>
-          <small class="badge-lab">B4 — B9 ADVANCED</small>
-          <h2 class="text-3xl font-bold text-slate-800 dark:text-white">Nội Dung Thực Hành & Tài Liệu Docs Chi Tiết</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Chọn từng bài học bên dưới để xem nội dung tổng quan, chạy mô phỏng và mở docs chi tiết.</p>
-        </div>
-        <a id="open-docs-btn" href="DOCUMENTATION.md" target="_blank" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold text-sm shadow-md hover:opacity-95 transition-opacity flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-          Mở Full Docs Tổng Hợp (DOCUMENTATION.md)
-        </a>
-      </div>
-
-      <!-- Navigation Tabs B4-B9 -->
-      <div class="flex flex-wrap gap-2 mb-8" id="lesson-tabs">
-        <button data-lesson="B4" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-md">B4: React Fundamentals</button>
-        <button data-lesson="B5" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B5: Module Nội Bộ</button>
-        <button data-lesson="B6" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B6: TypeScript</button>
-        <button data-lesson="B7" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B7: Advanced Performance</button>
-        <button data-lesson="B8" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B8: State Management</button>
-        <button data-lesson="B9" class="px-4 py-2 rounded-xl font-bold text-sm transition-all bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">B9: TanStack Query</button>
-      </div>
-
-      <!-- Active Lesson Panel Container -->
-      <div id="lesson-panel" class="grid lg:grid-cols-12 gap-8">
-        <!-- Content will be dynamically updated by js/app.js -->
-      </div>
-    </section>
-
-    <!-- Final Check -->
-    <section
-      class="rounded-3xl p-10 bg-gradient-to-br from-indigo-900 to-slate-900 text-white relative overflow-hidden shadow-lg border border-indigo-500/20">
-      <!-- Decor -->
-      <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
-
-      <div class="relative z-10">
-        <small class="text-indigo-300 font-bold tracking-wider text-xs uppercase mb-2 block">FINAL CHECK</small>
-        <h2 class="text-3xl font-bold mb-10">Definition of Done</h2>
-
-        <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-          <div
-            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-            <strong class="block text-lg mb-2 flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"></path>
-              </svg>
-              Logic JS thuần
-            </strong>
-            <span class="text-sm text-indigo-100/70">Không React/framework.</span>
           </div>
-          <div
-            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-            <strong class="block text-lg mb-2 flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"></path>
-              </svg>
-              Array + Closure
-            </strong>
-            <span class="text-sm text-indigo-100/70">Dùng hợp lý, declarative.</span>
+
+          <div class="flex flex-wrap gap-2">
+            <span class="badge-tag">import</span>
+            <span class="badge-tag">export</span>
+            <span class="badge-tag">default</span>
+            <span class="badge-tag">named export</span>
           </div>
-          <div
-            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-            <strong class="block text-lg mb-2 flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"></path>
-              </svg>
-              Async/Await
-            </strong>
-            <span class="text-sm text-indigo-100/70">Có try/catch + Promise.all.</span>
-          </div>
-          <div
-            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-            <strong class="block text-lg mb-2 flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"></path>
-              </svg>
-              Event Loop
-            </strong>
-            <span class="text-sm text-indigo-100/70">Giải thích sync → microtask → task.</span>
-          </div>
-          <div
-            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-            <strong class="block text-lg mb-2 flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"></path>
-              </svg>
-              ES Modules
-            </strong>
-            <span class="text-sm text-indigo-100/70">Tách file import/export gọn.</span>
-          </div>
-          <div
-            class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-            <strong class="block text-lg mb-2 flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clip-rule="evenodd"></path>
-              </svg>
-              Q&A Mentor
-            </strong>
-            <span class="text-sm text-indigo-100/70">Closure + Event Loop.</span>
+        </article>
+      </section>
+
+      <!-- Final Check -->
+      <section
+        class="rounded-3xl p-10 bg-gradient-to-br from-indigo-900 to-slate-900 text-white relative overflow-hidden shadow-lg border border-indigo-500/20">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10">
+          <small class="text-indigo-300 font-bold tracking-wider text-xs uppercase mb-2 block">FINAL CHECK (B1 — B11)</small>
+          <h2 class="text-3xl font-bold mb-10">Definition of Done</h2>
+
+          <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div
+              class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+              <strong class="block text-lg mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                JS Core & Async (B1-B3)
+              </strong>
+              <span class="text-sm text-indigo-100/70">Closure, Array, Event Loop, ES Modules.</span>
+            </div>
+            <div
+              class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+              <strong class="block text-lg mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                React & Architecture (B4-B5)
+              </strong>
+              <span class="text-sm text-indigo-100/70">Hooks, Lifecycle, Feature-first structure.</span>
+            </div>
+            <div
+              class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+              <strong class="block text-lg mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                TS & Performance (B6-B7)
+              </strong>
+              <span class="text-sm text-indigo-100/70">Strict TS >90%, Memoization, Custom Hooks.</span>
+            </div>
+            <div
+              class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+              <strong class="block text-lg mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                State & TanStack Query (B8-B9)
+              </strong>
+              <span class="text-sm text-indigo-100/70">Zustand Persist, RTK, Optimistic Updates.</span>
+            </div>
+            <div
+              class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+              <strong class="block text-lg mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                Next.js + TypeScript (B10)
+              </strong>
+              <span class="text-sm text-indigo-100/70">App Router, RSC, SSR/ISR, Middleware Guard.</span>
+            </div>
+            <div
+              class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+              <strong class="block text-lg mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                Form Handling + Policy (B11)
+              </strong>
+              <span class="text-sm text-indigo-100/70">React Hook Form, Zod Schema, Policy Modal.</span>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
   <script type="module" src="js/app.js"></script>
 </body>
