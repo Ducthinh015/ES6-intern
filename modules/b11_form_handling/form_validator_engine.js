@@ -131,13 +131,13 @@ export function validateRegisterSchema(values) {
 }
 
 /**
- * 4. Nội dung Chính sách tự chế (Custom Policy Data cho Popup)
+ * 4. Nội dung Chính sách & Điều khoản Hệ thống (Policy Data cho Popup)
  */
 export const CUSTOM_POLICY_CLAUSES = [
   {
     id: 'clause-1',
     code: 'ĐIỀU 1',
-    title: 'Đạo luật "Zero Any" trong TypeScript & Next.js (B6 & B10)',
+    title: 'Quy chuẩn "Zero Any" trong TypeScript & Next.js (B6 & B10)',
     badge: 'Bắt buộc',
     content:
       'Học viên cam kết không lạm dụng từ khóa `any` dưới mọi hình thức. Khi làm việc với dữ liệu chưa rõ kiểu từ API hoặc Form, bắt buộc phải dùng `unknown` kết hợp với Type Guard hoặc Zod Schema để đạt Type Coverage > 90%.'
@@ -169,10 +169,18 @@ export const CUSTOM_POLICY_CLAUSES = [
   {
     id: 'clause-5',
     code: 'ĐIỀU 5',
+    title: 'Bảo mật Phiên Đăng nhập & Lưu trữ Token (Auth Guard)',
+    badge: 'Authentication',
+    content:
+      'Thông tin xác thực và trạng thái chấp nhận Chính sách của học viên được đồng bộ qua Zustand Persist Middleware và được kiểm tra nghiêm ngặt bởi Next.js Edge Middleware trước khi cho phép truy cập tài nguyên nội bộ.'
+  },
+  {
+    id: 'clause-6',
+    code: 'ĐIỀU 6',
     title: 'Quyền truy cập Kho Bài Tập Thực Hành (B4 — B9 & B10 — B11)',
     badge: 'Quyền lợi Học viên',
     content:
-      'Ngay sau khi tích chọn chấp nhận Chính sách này và Đăng nhập / Đăng ký thành công, hệ thống Next.js Auth Guard sẽ mở khóa toàn bộ kho bài tập từ Bài 4 đến Bài 9 (kèm Bài 10 & Bài 11), cho phép chạy trực tiếp các bộ mô phỏng và xem tài liệu báo cáo chi tiết.'
+      'Ngay sau khi cuộn đọc hết văn bản này, bấm "Tôi Đồng Ý" và hoàn tất Đăng nhập / Đăng ký, hệ thống sẽ mở khóa toàn bộ kho bài tập từ Bài 4 đến Bài 9 (kèm Bài 10 & Bài 11), cho phép chạy trực tiếp các bộ mô phỏng và xem tài liệu báo cáo chi tiết.'
   }
 ];
 

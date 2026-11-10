@@ -430,13 +430,13 @@ export function middleware(request: NextRequest) {
     title: 'B11: Form Handling (React Hook Form + Zod + Policy Popup)',
     docPath: 'docs/B11_Form_Handling.md',
     summary:
-      'Xây dựng Form Đăng ký & Đăng nhập chuyên nghiệp với React Hook Form + Zod Schema Validation, kiểm tra khớp mật khẩu (.refine), đánh giá độ mạnh mật khẩu, nút tích chấp nhận Policy và Popup Chính sách tự chế đồng bộ 2 chiều.',
+      'Xây dựng Form Đăng ký & Đăng nhập chuyên nghiệp với React Hook Form + Zod Schema Validation, kiểm tra khớp mật khẩu (.refine), đánh giá độ mạnh mật khẩu, nút tích chấp nhận Policy và Popup Chính sách đồng bộ 2 chiều.',
     topics: [
       'Uncontrolled Hook Form (useForm) tối ưu 0 lần re-render thừa',
       'Zod Schema Validation & tự động suy diễn kiểu z.infer<typeof schema>',
       'Cross-field validation (.refine) kiểm tra mật khẩu xác nhận',
       'Bắt buộc tích chọn Checkbox chấp nhận Policy (z.literal(true))',
-      'Popup Chính sách tự chế đồng bộ tự động setValue("acceptPolicy", true)'
+      'Popup Chính sách bắt buộc cuộn đọc xuống cuối mới hiện nút "Tôi Đồng Ý"'
     ],
     codeSnippet: `// Zod Schema với .refine() & bắt buộc tích chọn Policy
 export const registerSchema = z.object({
@@ -451,7 +451,7 @@ export const registerSchema = z.object({
   path: ['confirmPassword'],
   message: 'Mật khẩu xác nhận không khớp'
 });`,
-    demoAction: 'Mở Popup Chính Sách Tự Chế (B11 Demo)',
+    demoAction: 'Mở Popup Chính Sách & Điều Khoản (B11 Demo)',
     demoHandler: () => {
       openPolicyModal();
     }
@@ -600,7 +600,7 @@ document.querySelector('#lesson-tabs')?.addEventListener('click', e => {
 });
 
 // ============================================================================
-// 4. POPUP CHÍNH SÁCH TỰ CHẾ (CUSTOM POLICY MODAL)
+// 4. POPUP CHÍNH SÁCH & ĐIỀU KHOẢN (SCROLL TO BOTTOM TO REVEAL ACCEPT BUTTON)
 // ============================================================================
 
 function renderPolicyModalClauses() {
@@ -624,16 +624,56 @@ function renderPolicyModalClauses() {
     ).join('') +
     `
       <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs leading-relaxed">
-        <strong>📌 Cam kết vui vẻ của Thực tập sinh:</strong> Tôi đồng ý viết code sạch sẽ, không dùng <code>any</code> bừa bãi, validate đầy đủ mọi Form trước khi gửi và hoàn thành trọn vẹn các bài tập từ <strong>B4 — B9</strong> cũng như <strong>B10 — B11</strong>!
+        <strong>📌 Xác nhận cuối văn bản:</strong> Tôi xác nhận đã đọc toàn bộ các điều khoản từ Điều 1 đến Điều 6, cam kết viết code chuẩn TypeScript, validate đầy đủ mọi Form trước khi gửi và hoàn thành trọn vẹn lộ trình thực tập!
       </div>
     `;
 }
+
+function resetPolicyModalScrollState() {
+  const container = document.querySelector('#policy-clauses-list');
+  const acceptBtn = document.querySelector('#accept-policy-modal-btn');
+  const scrollHint = document.querySelector('#policy-scroll-hint');
+
+  if (container) {
+    container.scrollTop = 0;
+  }
+  if (acceptBtn) {
+    acceptBtn.hidden = true;
+    acceptBtn.classList.add('hidden');
+  }
+  if (scrollHint) {
+    scrollHint.className = 'text-xs text-amber-300 font-medium flex items-center gap-1.5';
+    scrollHint.textContent = '⬇️ Vui lòng lướt xuống cuối Chính sách để hiện nút "Tôi Đồng Ý"';
+  }
+}
+
+function handlePolicyScrollCheck() {
+  const container = document.querySelector('#policy-clauses-list');
+  const acceptBtn = document.querySelector('#accept-policy-modal-btn');
+  const scrollHint = document.querySelector('#policy-scroll-hint');
+  if (!container || !acceptBtn) return;
+
+  const { scrollTop, clientHeight, scrollHeight } = container;
+  const isAtBottom = scrollTop + clientHeight >= scrollHeight - 16;
+
+  if (isAtBottom) {
+    acceptBtn.hidden = false;
+    acceptBtn.classList.remove('hidden');
+    if (scrollHint) {
+      scrollHint.className = 'text-xs text-emerald-400 font-bold flex items-center gap-1.5';
+      scrollHint.textContent = '✅ Đã đọc hết Chính sách! Bấm "Tôi Đồng Ý" để xác nhận và ẩn Popup.';
+    }
+  }
+}
+
+document.querySelector('#policy-clauses-list')?.addEventListener('scroll', handlePolicyScrollCheck);
 
 function openPolicyModal() {
   const modal = document.querySelector('#policy-modal');
   if (modal) {
     modal.hidden = false;
     modal.classList.remove('hidden');
+    resetPolicyModalScrollState();
   }
 }
 

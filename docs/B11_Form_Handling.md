@@ -4,7 +4,7 @@
 **Mã bài tập:** DEV-FE-011 / B11  
 **Task Point hoàn thành:** 10.00 / 10.00 Points  
 **Trạng thái hoàn thành:** 100% các bài tập  
-**Kết quả đạt được:** Xây dựng hoàn chỉnh hệ thống Form Đăng ký / Đăng nhập hiện đại sử dụng tư duy Uncontrolled Hooks (`React Hook Form`) kết hợp Schema Validation (`Zod`), xử lý Cross-field validation (nhập lại mật khẩu), đánh giá độ mạnh mật khẩu theo thời gian thực, bắt buộc tích chọn Checkbox chấp nhận Chính sách và đồng bộ 2 chiều với Popup Chính sách tự chế.
+**Kết quả đạt được:** Xây dựng hoàn chỉnh hệ thống Form Đăng ký / Đăng nhập hiện đại sử dụng tư duy Uncontrolled Hooks (`React Hook Form`) kết hợp Schema Validation (`Zod`), xử lý Cross-field validation (nhập lại mật khẩu), đánh giá độ mạnh mật khẩu theo thời gian thực, bắt buộc tích chọn Checkbox chấp nhận Chính sách và đồng bộ 2 chiều với Popup Chính sách & Điều khoản (yêu cầu cuộn đọc đến cuối mới hiển thị nút "Tôi Đồng Ý").
 
 ---
 
@@ -81,12 +81,13 @@ export type RegisterFormInput = z.infer<typeof registerSchema>;
 ## 3. BÁO CÁO BÀI TẬP 3: TÍCH HỢP CHECKBOX POLICY & POPUP CHÍNH SÁCH ĐỒNG BỘ 2 CHIỀU
 
 ### Đề bài:
-Thiết kế nút tích chấp nhận Policy đi kèm một **Popup Chính sách tự chế (Policy Modal)**:
-- Khi người dùng bấm vào đường dẫn *"Xem Chính sách & Điều khoản"*, mở Popup hiển thị 5 điều khoản dành cho Frontend Intern.
-- Khi người dùng bấm nút **"Tôi đã đọc hiểu & Đồng ý Chính sách"** ngay bên trong Popup:
+Thiết kế nút tích chấp nhận Policy đi kèm một **Popup Chính sách & Điều khoản (Policy Modal)**:
+- Khi người dùng bấm vào đường dẫn *"Xem Chính sách & Điều khoản"*, mở Popup hiển thị 6 điều khoản dành cho Frontend Intern.
+- Bắt buộc người dùng phải lướt (cuộn) đọc xuống cuối văn bản Chính sách mới hiển thị nút **"Tôi Đồng Ý"**.
+- Khi người dùng bấm nút **"Tôi Đồng Ý"** ngay bên trong Popup:
   1. Tự động gọi `setValue('acceptPolicy', true, { shouldValidate: true })` để tích chọn Checkbox ngoài Form.
   2. Xóa ngay lập tức thông báo lỗi màu đỏ của trường `acceptPolicy`.
-  3. Đóng Popup mượt mà để người dùng bấm Đăng ký / Đăng nhập mở khóa bài tập B4–B9.
+  3. Ẩn Popup mượt mà để người dùng bấm Đăng ký / Đăng nhập mở khóa bài tập B4–B9.
 
 ### Sơ đồ Luồng Tương Tác Form & Policy Popup:
 
@@ -95,14 +96,15 @@ sequenceDiagram
     autonumber
     actor User as Học viên (User)
     participant Form as Auth Form (B11)
-    participant Modal as Popup Chính Sách Tự Chế
+    participant Modal as Popup Chính Sách & Điều Khoản
     participant Store as Zustand Auth Store (B8)
     participant Dashboard as Trang Bài Tập B4 - B9
 
     User->>Form: Bấm "Xem Chính sách & Điều khoản"
-    Form->>Modal: Mở Popup Chính sách (5 Điều khoản FE Intern)
-    User->>Modal: Đọc và bấm "Tôi Đồng Ý & Tự Động Tích Chọn"
-    Modal->>Form: setValue('acceptPolicy', true, { shouldValidate: true })
+    Form->>Modal: Mở Popup Chính sách (Ẩn nút "Tôi Đồng Ý" ban đầu)
+    User->>Modal: Cuộn đọc xuống cuối văn bản -> Hiện nút "Tôi Đồng Ý"
+    User->>Modal: Bấm "Tôi Đồng Ý"
+    Modal->>Form: setValue('acceptPolicy', true, { shouldValidate: true }) & Ẩn Popup
     Form-->>User: Tích chọn Checkbox ✓ & Xóa lỗi đỏ
     User->>Form: Bấm Submit (Đăng ký / Đăng nhập)
     Form->>Form: Validate Schema (Email, Password, Policy === true)
@@ -125,6 +127,6 @@ sequenceDiagram
 - [x] Xây dựng Schema Validation cho cả Đăng nhập và Đăng ký bằng Zod pattern.
 - [x] Triển khai Cross-field validation kiểm tra khớp mật khẩu (`confirmPassword === password`).
 - [x] Thiết kế bắt buộc tích chọn Checkbox chấp nhận Policy (`acceptPolicy === true`).
-- [x] Tự chế Popup Chính sách Học viên đầy đủ nội dung và đồng bộ tự động tích chọn Checkbox khi bấm Đồng ý trong Popup.
+- [x] Xây dựng Popup Chính sách Học viên bắt buộc lướt xuống cuối mới hiện nút "Tôi Đồng Ý" để xác nhận và ẩn Popup.
 - [x] Sau khi Đăng ký / Đăng nhập thành công, chuyển thẳng vào giao diện hiển thị toàn bộ các bài tập từ B4–B9 (và B10–B11).
 
