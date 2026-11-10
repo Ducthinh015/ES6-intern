@@ -7,7 +7,8 @@
     "dev": "npx @tailwindcss/cli -i ./css/global.css -o ./css/output.css --watch",
     "serve": "npx -y serve . -p 3000",
     "start": "npx -y serve . -p 3000",
-    "build": "npx @tailwindcss/cli -i ./css/global.css -o ./css/output.css --minify"
+    "build": "echo 'Static build ready for Vercel'",
+    "build:css": "npx @tailwindcss/cli -i ./css/global.css -o ./css/output.css --minify"
   },
   "keywords": [],
   "author": "",

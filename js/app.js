@@ -632,6 +632,7 @@ function renderPolicyModalClauses() {
 function openPolicyModal() {
   const modal = document.querySelector('#policy-modal');
   if (modal) {
+    modal.hidden = false;
     modal.classList.remove('hidden');
   }
 }
@@ -639,6 +640,7 @@ function openPolicyModal() {
 function closePolicyModal() {
   const modal = document.querySelector('#policy-modal');
   if (modal) {
+    modal.hidden = true;
     modal.classList.add('hidden');
   }
 }
@@ -698,19 +700,40 @@ function setAuthMode(mode) {
   const emailCol = document.querySelector('#field-email-col');
   const confirmWrap = document.querySelector('#field-confirm-wrap');
   const submitText = document.querySelector('#auth-submit-text');
+  const switchLink = document.querySelector('#switch-auth-mode-link');
 
   if (mode === 'register') {
-    fullNameWrap?.classList.remove('hidden');
-    roleWrap?.classList.remove('hidden');
+    if (fullNameWrap) {
+      fullNameWrap.hidden = false;
+      fullNameWrap.classList.remove('hidden');
+    }
+    if (roleWrap) {
+      roleWrap.hidden = false;
+      roleWrap.classList.remove('hidden');
+    }
     if (emailCol) emailCol.className = 'sm:col-span-7';
-    confirmWrap?.classList.remove('hidden');
+    if (confirmWrap) {
+      confirmWrap.hidden = false;
+      confirmWrap.classList.remove('hidden');
+    }
     if (submitText) submitText.textContent = 'Đăng Ký Tài Khoản & Vào Xem Bài Tập (B4 — B9)';
+    if (switchLink) switchLink.textContent = 'Đã có tài khoản? Bấm vào đây để chuyển về Đăng Nhập →';
   } else {
-    fullNameWrap?.classList.add('hidden');
-    roleWrap?.classList.add('hidden');
+    if (fullNameWrap) {
+      fullNameWrap.hidden = true;
+      fullNameWrap.classList.add('hidden');
+    }
+    if (roleWrap) {
+      roleWrap.hidden = true;
+      roleWrap.classList.add('hidden');
+    }
     if (emailCol) emailCol.className = 'sm:col-span-12';
-    confirmWrap?.classList.add('hidden');
+    if (confirmWrap) {
+      confirmWrap.hidden = true;
+      confirmWrap.classList.add('hidden');
+    }
     if (submitText) submitText.textContent = 'Đăng Nhập & Mở Khóa Các Bài Tập (B4 — B9)';
+    if (switchLink) switchLink.textContent = 'Chưa có tài khoản? Bấm vào đây để chuyển sang Đăng Ký Tài Khoản mới →';
   }
 
   clearAllFieldErrors();
@@ -723,6 +746,10 @@ document.querySelector('#auth-mode-tabs')?.addEventListener('click', e => {
   if (btn) {
     setAuthMode(btn.dataset.authMode);
   }
+});
+
+document.querySelector('#switch-auth-mode-link')?.addEventListener('click', () => {
+  setAuthMode(authMode === 'login' ? 'register' : 'login');
 });
 
 // Nút Hiện/Ẩn mật khẩu
@@ -768,12 +795,14 @@ document.querySelector('#fill-demo-btn')?.addEventListener('click', () => {
 });
 
 function getFormValues() {
+  const password = document.querySelector('#input-password')?.value || '';
+  const rawConfirm = document.querySelector('#input-confirm-password')?.value || '';
   return {
     fullName: document.querySelector('#input-fullname')?.value || '',
     email: document.querySelector('#input-email')?.value || '',
     role: document.querySelector('#input-role')?.value || 'INTERN',
-    password: document.querySelector('#input-password')?.value || '',
-    confirmPassword: document.querySelector('#input-confirm-password')?.value || '',
+    password,
+    confirmPassword: rawConfirm || password,
     acceptPolicy: Boolean(document.querySelector('#input-accept-policy')?.checked)
   };
 }
@@ -966,9 +995,18 @@ function syncAuthView() {
   const isAuthorized = Boolean(isAuthenticated && user && token);
 
   if (isAuthorized) {
-    authPortal?.classList.add('hidden');
-    dashboardView?.classList.remove('hidden');
-    authNavbar?.classList.remove('hidden');
+    if (authPortal) {
+      authPortal.hidden = true;
+      authPortal.classList.add('hidden');
+    }
+    if (dashboardView) {
+      dashboardView.hidden = false;
+      dashboardView.classList.remove('hidden');
+    }
+    if (authNavbar) {
+      authNavbar.hidden = false;
+      authNavbar.classList.remove('hidden');
+    }
 
     // Cập nhật thông tin user trên thanh Navbar
     const nameEl = document.querySelector('#nav-user-name');
@@ -979,9 +1017,18 @@ function syncAuthView() {
     if (emailEl) emailEl.textContent = user.email || 'intern@dev.vn';
     if (roleEl) roleEl.textContent = user.role || 'INTERN';
   } else {
-    authPortal?.classList.remove('hidden');
-    dashboardView?.classList.add('hidden');
-    authNavbar?.classList.add('hidden');
+    if (authPortal) {
+      authPortal.hidden = false;
+      authPortal.classList.remove('hidden');
+    }
+    if (dashboardView) {
+      dashboardView.hidden = true;
+      dashboardView.classList.add('hidden');
+    }
+    if (authNavbar) {
+      authNavbar.hidden = true;
+      authNavbar.classList.add('hidden');
+    }
   }
 }
 
