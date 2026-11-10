@@ -170,3 +170,52 @@
   .lg\:py-20 { padding-top: 5rem; padding-bottom: 5rem; }
   .lg\:text-6xl { font-size: 3.75rem; line-height: 1.1; }
 }
+
+
+/* ============================================================================
+   FRONTEND RPG QUEST THEME UTILITIES
+   ============================================================================ */
+.w-11 { width: 2.75rem; }
+.h-11 { height: 2.75rem; }
+.w-48 { width: 12rem; }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.text-left { text-align: left; }
+.ml-auto { margin-left: auto; }
+.mt-0\.5 { margin-top: 0.125rem; }
+.mt-1\.5 { margin-top: 0.375rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-8 { margin-top: 2rem; }
+.pt-1 { padding-top: 0.25rem; }
+.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.leading-snug { line-height: 1.375; }
+.space-y-2\.5 > :not(:last-child) { margin-bottom: 0.625rem; }
+.space-y-5 > :not(:last-child) { margin-bottom: 1.25rem; }
+
+.bg-slate-900\/80 { background-color: rgba(15, 23, 42, 0.8); }
+.bg-slate-900\/95 { background-color: rgba(15, 23, 42, 0.95); }
+.bg-indigo-600\/20 { background-color: rgba(79, 70, 229, 0.2); }
+.bg-rose-500\/20 { background-color: rgba(244, 63, 94, 0.2); }
+.border-indigo-400 { border-color: var(--color-indigo-400); }
+.border-amber-500\/40 { border-color: rgba(245, 158, 11, 0.4); }
+.text-rose-300 { color: #fda4af; }
+
+.from-rose-600 { --tw-gradient-from: #e11d48; --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)); }
+.from-slate-900 { --tw-gradient-from: var(--color-slate-900); --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)); }
+.via-purple-500 { --tw-gradient-via: var(--color-purple-500); --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-via-stops); }
+.via-purple-600 { --tw-gradient-via: var(--color-purple-600); --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-via-stops); }
+.via-indigo-950 { --tw-gradient-via: var(--color-indigo-950); --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-via-stops); }
+.to-amber-200 { --tw-gradient-to: #fde68a; --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)); }
+.to-amber-400 { --tw-gradient-to: var(--color-amber-400); --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)); }
+.to-amber-500 { --tw-gradient-to: var(--color-amber-500); --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)); }
+.to-emerald-400 { --tw-gradient-to: var(--color-emerald-400); --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position)); }
+
+.hover\:bg-indigo-500:hover { background-color: var(--color-indigo-500); }
+.hover\:bg-indigo-950\/60:hover { background-color: rgba(30, 27, 75, 0.6); }
+
+@media (min-width: 48rem) {
+  .md\:flex { display: flex !important; }
+  .md\:text-base { font-size: 1rem; line-height: 1.5rem; }
+}
+@media (min-width: 64rem) {
+  .lg\:py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+}

@@ -21,7 +21,154 @@ import {
 } from '../modules/b11_form_handling/form_validator_engine.js';
 
 // ============================================================================
-// 1. ROADMAP TASKS (B1 — B11: 18 CHẶNG)
+// 1. HỆ THỐNG NHÂN VẬT RPG (EXP, LEVEL, GOLD, HUY HIỆU & BOSS FIGHT)
+// ============================================================================
+
+const RPG_STORAGE_KEY = 'fe_rpg_quest_state_v1';
+
+const defaultRpgState = {
+  exp: 500,
+  gold: 450,
+  clearedQuests: ['B4'],
+  bossHp: 100,
+  currentQuizIdx: 0
+};
+
+function loadRpgState() {
+  try {
+    const raw = localStorage.getItem(RPG_STORAGE_KEY);
+    if (!raw) return { ...defaultRpgState };
+    const parsed = JSON.parse(raw);
+    return {
+      exp: typeof parsed.exp === 'number' ? parsed.exp : 500,
+      gold: typeof parsed.gold === 'number' ? parsed.gold : 450,
+      clearedQuests: Array.isArray(parsed.clearedQuests) ? parsed.clearedQuests : ['B4'],
+      bossHp: typeof parsed.bossHp === 'number' ? parsed.bossHp : 100,
+      currentQuizIdx: typeof parsed.currentQuizIdx === 'number' ? parsed.currentQuizIdx : 0
+    };
+  } catch {
+    return { ...defaultRpgState };
+  }
+}
+
+let rpgState = loadRpgState();
+
+function saveRpgState() {
+  try {
+    localStorage.setItem(RPG_STORAGE_KEY, JSON.stringify(rpgState));
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function getLevelInfo(exp) {
+  const level = Math.max(1, Math.floor(exp / 150) + 1);
+  const nextLevelExp = level * 150;
+  const currentLevelStart = (level - 1) * 150;
+  const progressPercent = Math.min(
+    100,
+    Math.round(((exp - currentLevelStart) / (nextLevelExp - currentLevelStart)) * 100)
+  );
+
+  const titles = [
+    'Tân Binh ES6',
+    'Kiếm Sĩ DOM',
+    'Hiệp Sĩ React',
+    'Pháp Sư TypeScript',
+    'Thợ Săn Hiệu Năng',
+    'Đại Sư Zustand & Query',
+    'Chúa Tể Next.js',
+    'Huyền Thoại Frontend'
+  ];
+  const rankTitle = titles[Math.min(level - 1, titles.length - 1)];
+
+  return { level, rankTitle, nextLevelExp, progressPercent };
+}
+
+function logBattleAction(message) {
+  const logEl = document.querySelector('#rpg-battle-log');
+  if (logEl) {
+    logEl.textContent = message;
+  }
+}
+
+function awardRpgReward({ expGain = 0, goldGain = 0, questCode = null, reason = '' }) {
+  rpgState.exp += expGain;
+  rpgState.gold += goldGain;
+
+  if (questCode && !rpgState.clearedQuests.includes(questCode)) {
+    rpgState.clearedQuests.push(questCode);
+  }
+
+  saveRpgState();
+  renderRpgHud();
+  renderQuickOverviewGrid();
+
+  if (reason) {
+    logBattleAction(`⚡ ${reason} -> Nhận thưởng +${expGain} EXP & +${goldGain} Gold!`);
+  }
+}
+
+function renderRpgHud() {
+  const { level, rankTitle, nextLevelExp, progressPercent } = getLevelInfo(rpgState.exp);
+
+  const levelBadge = document.querySelector('#hud-level-badge');
+  const goldDisplay = document.querySelector('#hud-gold-display');
+  const expText = document.querySelector('#hud-exp-text');
+  const expBar = document.querySelector('#hud-exp-bar');
+  const heroRankTitle = document.querySelector('#hero-rank-title');
+  const clearedCountLabel = document.querySelector('#Cleared-count-label');
+  const badgesTray = document.querySelector('#rpg-badges-tray');
+
+  if (levelBadge) levelBadge.textContent = `Lv. ${level} • ${rankTitle}`;
+  if (goldDisplay) goldDisplay.textContent = `🪙 ${rpgState.gold} Gold`;
+  if (expText) expText.textContent = `${rpgState.exp} / ${nextLevelExp} XP`;
+  if (expBar) expBar.style.width = `${progressPercent}%`;
+  if (heroRankTitle) heroRankTitle.textContent = `Lv.${level} — ${rankTitle}`;
+  if (clearedCountLabel) {
+    clearedCountLabel.textContent = `Đã vượt: ${rpgState.clearedQuests.length} / 8 Ải`;
+  }
+
+  // Update character attributes based on level
+  const strEl = document.querySelector('#stat-str');
+  const intEl = document.querySelector('#stat-int');
+  const agiEl = document.querySelector('#stat-agi');
+  if (strEl) strEl.textContent = String(75 + level * 3);
+  if (intEl) intEl.textContent = String(80 + level * 4);
+  if (agiEl) agiEl.textContent = String(78 + rpgState.clearedQuests.length * 4);
+
+  // Render Achievement Badges
+  if (badgesTray) {
+    const allBadges = [
+      { code: 'B4', icon: '🏰', name: 'React Knight' },
+      { code: 'B5', icon: '🧭', name: 'Arch Explorer' },
+      { code: 'B6', icon: '🛡️', name: 'Strict TS Paladin' },
+      { code: 'B7', icon: '⚡', name: 'Zero-Lag Ninja' },
+      { code: 'B8', icon: '💎', name: 'State Alchemist' },
+      { code: 'B9', icon: '🐉', name: 'Query Slayer' },
+      { code: 'B10', icon: '🌌', name: 'Next.js Walker' },
+      { code: 'B11', icon: '📜', name: 'Zod Inquisitor' }
+    ];
+
+    badgesTray.innerHTML = allBadges
+      .map(b => {
+        const unlocked = rpgState.clearedQuests.includes(b.code);
+        return `
+          <span class="px-2.5 py-1 rounded-lg text-xs font-bold border transition-all ${
+            unlocked
+              ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-sm'
+              : 'bg-slate-950 border-slate-800 text-slate-500 opacity-60'
+          }" title="${unlocked ? 'Đã mở khóa huy hiệu ' + b.code : 'Vượt ải ' + b.code + ' để mở khóa'}">
+            ${b.icon} ${b.code}: ${b.name} ${unlocked ? '✓' : '🔒'}
+          </span>
+        `;
+      })
+      .join('');
+  }
+}
+
+// ============================================================================
+// 2. ROADMAP TASKS (B1 — B11: 18 CHẶNG NHIỆM VỤ)
 // ============================================================================
 
 const tasks = [
@@ -45,7 +192,7 @@ const tasks = [
   'B11: Form Handling (React Hook Form, Zod Schema, Policy Checkbox & Modal)'
 ];
 
-let completed = tasks.map((_, idx) => idx >= 10); // Mặc định đánh dấu hoàn thành các bài tập B4-B11
+let completed = tasks.map((_, idx) => idx >= 10);
 
 function renderTasks() {
   const list = document.querySelector('#task-list');
@@ -63,6 +210,9 @@ function renderTasks() {
     checkbox.checked = completed[index];
     checkbox.addEventListener('change', () => {
       completed[index] = checkbox.checked;
+      if (checkbox.checked) {
+        awardRpgReward({ expGain: 25, goldGain: 10, reason: `Hoàn thành nhiệm vụ #${index + 1}` });
+      }
       updateProgress();
     });
 
@@ -70,14 +220,14 @@ function renderTasks() {
     text.className = 'flex-1';
     const group =
       index < 4
-        ? 'JS Nền tảng'
+        ? 'Ải Tân Binh: JS Nền tảng'
         : index < 10
-        ? 'JS Bất đồng bộ & Core'
+        ? 'Ải Tinh Anh: JS Async & Core'
         : index < 12
-        ? 'React & Module Nội bộ (B4-B5)'
+        ? 'Chiến Dịch B4-B5: React & Architecture'
         : index < 16
-        ? 'TS, Performance, State & Query (B6-B9)'
-        : 'Next.js + TS & Form Handling (B10-B11)';
+        ? 'Chiến Dịch B6-B9: TS, Perf, State & Query'
+        : 'Chiến Dịch B10-B11: Next.js + TS & Form';
     text.innerHTML = `<strong class="block text-sm font-semibold text-slate-800 dark:text-slate-200">${String(
       index + 1
     ).padStart(2, '0')}. ${task}</strong><small class="text-xs text-slate-400">${group}</small>`;
@@ -99,27 +249,33 @@ function updateProgress() {
   if (copy) {
     copy.textContent =
       done === completed.length
-        ? '🎉 Hoàn thành toàn bộ lộ trình khóa học FE (B1 - B11)!'
+        ? '👑 Tuyệt đỉnh! Bạn đã chinh phục toàn bộ 18 nhiệm vụ từ B1 đến B11!'
         : done >= 8
-        ? 'Đã mở khóa các module B4-B9 cùng Next.js + TS (B10) & Form Handling (B11)!'
-        : 'Bắt đầu học từ nền tảng Scope & Closure.';
+        ? '⚔️ Đang càn quét bản đồ chiến dịch B4-B9 cùng Next.js + TS (B10) & Form Handling (B11)!'
+        : 'Hãy tích chọn hoàn thành các nhiệm vụ hoặc vượt ải để tăng EXP.';
   }
 }
 
 document.querySelector('#reset-btn')?.addEventListener('click', () => {
   completed = completed.map(() => false);
+  rpgState = { ...defaultRpgState };
+  saveRpgState();
   renderTasks();
   updateProgress();
+  renderRpgHud();
+  renderQuickOverviewGrid();
+  renderBossQuiz();
 });
 
 // ============================================================================
-// 2. INTERACTIVE LABS B1 — B3
+// 3. TRAINING GROUNDS LABS B1 — B3
 // ============================================================================
 
 const inc = createCounter();
 document.querySelector('#counter-btn')?.addEventListener('click', () => {
   const val = document.querySelector('#counter-value');
   if (val) val.textContent = inc();
+  awardRpgReward({ expGain: 10, goldGain: 5, reason: 'Tụ khí Closure Counter thành công' });
 });
 
 function renderUsers(mode = 'all') {
@@ -130,10 +286,10 @@ function renderUsers(mode = 'all') {
   view.innerHTML = data
     .map(item => {
       if (typeof item === 'string') {
-        return `<div class="user p-2 bg-slate-100 dark:bg-slate-800 rounded font-medium text-xs"><strong>${item}</strong></div>`;
+        return `<div class="user p-2 bg-slate-100 dark:bg-slate-800 rounded font-medium text-xs"><strong>⚔️ ${item}</strong></div>`;
       }
-      return `<div class="user p-2 bg-slate-100 dark:bg-slate-800 rounded text-xs"><strong>${item.name}</strong><span class="block text-slate-400">${item.age} tuổi · ${
-        item.active ? 'active' : 'inactive'
+      return `<div class="user p-2 bg-slate-100 dark:bg-slate-800 rounded text-xs"><strong>🛡️ ${item.name}</strong><span class="block text-slate-400">Lv.${item.age} · ${
+        item.active ? '🟢 Sẵn sàng' : '⚪ Nghỉ ngơi'
       }</span></div>`;
     })
     .join('');
@@ -141,7 +297,10 @@ function renderUsers(mode = 'all') {
 
 document.querySelector('#array-actions')?.addEventListener('click', event => {
   const button = event.target.closest('button[data-mode]');
-  if (button) renderUsers(button.dataset.mode);
+  if (button) {
+    renderUsers(button.dataset.mode);
+    awardRpgReward({ expGain: 10, goldGain: 5, reason: `Triệu hồi đội hình Array (${button.dataset.mode})` });
+  }
 });
 
 const ageEl = document.querySelector('#age-total');
@@ -156,6 +315,7 @@ document.querySelector('#event-btn')?.addEventListener('click', async () => {
     if (output) output.textContent = value;
   });
   btn.disabled = false;
+  awardRpgReward({ expGain: 25, goldGain: 15, reason: 'Kích hoạt Vòng Trận Pháp Event Loop hoàn tất' });
 });
 
 document.querySelector('#seq-btn')?.addEventListener('click', async () => {
@@ -163,7 +323,8 @@ document.querySelector('#seq-btn')?.addEventListener('click', async () => {
   const seqTime = document.querySelector('#seq-time');
   const note = document.querySelector('#async-note');
   if (seqTime) seqTime.textContent = `${(ms / 1000).toFixed(1)}s`;
-  if (note) note.textContent = 'Tuần tự: tác vụ B chờ A hoàn thành rồi mới chạy.';
+  if (note) note.textContent = 'Đánh đơn (Tuần tự): Chiêu B phải chờ chiêu A hoàn thành mới tung ra.';
+  awardRpgReward({ expGain: 20, goldGain: 10, reason: 'Thử nghiệm Đánh đơn Sequential Async' });
 });
 
 document.querySelector('#par-btn')?.addEventListener('click', async () => {
@@ -171,21 +332,25 @@ document.querySelector('#par-btn')?.addEventListener('click', async () => {
   const parTime = document.querySelector('#par-time');
   const note = document.querySelector('#async-note');
   if (parTime) parTime.textContent = `${(ms / 1000).toFixed(1)}s`;
-  if (note) note.textContent = 'Promise.all: hai tác vụ độc lập chạy đồng thời.';
+  if (note) note.textContent = 'Song kiếm hợp bích (Promise.all): Hai đòn đánh tung ra đồng thời, giảm một nửa thời gian!';
+  awardRpgReward({ expGain: 25, goldGain: 15, reason: 'Thi triển Song kiếm Promise.all' });
 });
 
 // ============================================================================
-// 3. LESSONS DATA (B4 — B9 HIỆN TẠI + B10 NEXT.JS & B11 FORM HANDLING)
+// 4. BẢN ĐỒ CHIẾN DỊCH CÁC ẢI B4 — B9 HIỆN TẠI & B10 — B11 MỚI
 // ============================================================================
 
 const lessonsData = {
   B4: {
-    badge: 'Bài tập 4 (Hiện tại)',
+    icon: '🏰',
+    bossName: 'Boss: Virtual DOM Guardian',
+    xpReward: 100,
+    badge: 'Ải 4 (Hiện tại)',
     shortTitle: 'React Fundamentals',
-    title: 'B4: React Fundamentals',
+    title: 'Ải B4: Đền Thờ React Fundamentals',
     docPath: 'docs/B4_React_Fundamentals.md',
     summary:
-      'Nắm vững tư duy Component, JSX, Props, State, useState & useEffect, Render Danh Sách & Keys, Controlled Inputs và Cơ chế Re-render.',
+      'Làm chủ Component Architecture, JSX, Props, State, useState & 3 dạng useEffect, Render Danh Sách & Keys, Controlled Inputs và Cơ chế Re-render.',
     topics: [
       'JSX & Component Architecture',
       'Props & State (Unidirectional Data Flow)',
@@ -199,18 +364,26 @@ const [form, setForm] = useState({ username: '', email: '' });
 const handleChange = (e) => {
   setForm({ ...form, [e.target.name]: e.target.value });
 };`,
-    demoAction: 'Simulate React State Update',
+    demoAction: '⚔️ Tung Tuyệt Kỹ Virtual DOM (+100 EXP)',
     demoHandler: () => {
-      alert('⚡ [B4 React Fundamentals]: Component State updated! Re-render triggered with Virtual DOM reconciliation.');
+      awardRpgReward({
+        expGain: 100,
+        goldGain: 50,
+        questCode: 'B4',
+        reason: '[Ải B4] Kích hoạt React Virtual DOM Reconciliation thành công!'
+      });
     }
   },
   B5: {
-    badge: 'Bài tập 5 (Hiện tại)',
+    icon: '🧭',
+    bossName: 'Boss: Interceptor Gatekeeper',
+    xpReward: 100,
+    badge: 'Ải 5 (Hiện tại)',
     shortTitle: 'Module Nội Bộ',
-    title: 'B5: Tổng Quan Module Nội Bộ (Lark Wiki)',
+    title: 'Ải B5: Thành Trì Kiến Trúc Module Nội Bộ',
     docPath: 'docs/B5_Internal_Module_Overview.md',
     summary:
-      'Chạy project local, Cấu trúc thư mục chuẩn doanh nghiệp (Feature-first), Luồng dữ liệu (Routing → Data → Render) và Mentor Q&A.',
+      'Chạy project local, Cấu trúc thư mục chuẩn doanh nghiệp (Feature-first), Luồng dữ liệu (Routing → Data → Render) và chiến thuật tìm code cấp tốc.',
     topics: [
       'Tech stack & dependency matrix',
       'Local Dev setup (npm run dev & env config)',
@@ -222,18 +395,26 @@ const handleChange = (e) => {
 const router = new FlowRouterSimulator(routes);
 router.navigate('/users'); 
 // Interceptor automatically attaches Bearer JWT Token!`,
-    demoAction: 'Run Internal Flow Simulator',
+    demoAction: '⚔️ Kích Hoạt Luồng Interceptor (+100 EXP)',
     demoHandler: () => {
-      alert('🚀 [B5 Internal Module]: Navigated to /users -> Interceptor attached JWT Token -> Rendered <UserManagementPage />');
+      awardRpgReward({
+        expGain: 100,
+        goldGain: 50,
+        questCode: 'B5',
+        reason: '[Ải B5] Điều hướng /users -> Axios Interceptor tự động gắn Bearer JWT Token!'
+      });
     }
   },
   B6: {
-    badge: 'Bài tập 6 (Hiện tại)',
+    icon: '🛡️',
+    bossName: 'Boss: Quái Vật "any" Hỗn Mang',
+    xpReward: 150,
+    badge: 'Ải 6 (Hiện tại)',
     shortTitle: 'TypeScript Integration',
-    title: 'B6: TypeScript Integration',
+    title: 'Ải B6: Pháo Đài Strict TypeScript (>90%)',
     docPath: 'docs/B6_TypeScript_Integration.md',
     summary:
-      'Định kiểu Props/State/Event trong React, Type Narrowing, Generics, loại bỏ `any` bằng `unknown` và đạt Type Coverage > 90%.',
+      'Định kiểu Props/State/Event trong React, Type Narrowing, Generics, tiêu diệt `any` bằng `unknown` + Type Guard và đạt Type Coverage > 90%.',
     topics: [
       'Type vs Interface & Union/Literal types',
       'Định kiểu React Props, State & Event handlers',
@@ -241,22 +422,30 @@ router.navigate('/users');
       'Generics & Standard Utility Types (Pick, Omit, Record)',
       'TS Strict mode & Type coverage > 90%'
     ],
-    codeSnippet: `// Type Guard avoiding any
+    codeSnippet: `// Khiên Type Guard chặn hoàn toàn lỗi runtime mà không dùng any
 function isUserProfile(obj: unknown): obj is UserProfile {
   return typeof obj === 'object' && obj !== null && 'id' in obj;
 }`,
-    demoAction: 'Run TypeScript Guard Check',
+    demoAction: '🛡️ Dựng Khiên Type Guard Diệt "any" (+150 EXP)',
     demoHandler: () => {
-      alert('✅ [B6 TypeScript]: Type Guard Verified! Data is safe and strongly typed with >90% Type Coverage.');
+      awardRpgReward({
+        expGain: 150,
+        goldGain: 75,
+        questCode: 'B6',
+        reason: '[Ải B6] Khiên Type Guard đã thanh tẩy hoàn toàn từ khóa "any" (Coverage 96%)!'
+      });
     }
   },
   B7: {
-    badge: 'Bài tập 7 (Hiện tại)',
+    icon: '⚡',
+    bossName: 'Boss: Infinite Re-render Hydra',
+    xpReward: 150,
+    badge: 'Ải 7 (Hiện tại)',
     shortTitle: 'React Performance',
-    title: 'B7: React Advanced Performance & Custom Hooks',
+    title: 'Ải B7: Thung Lũng Tối Ưu Hiệu Năng & Custom Hooks',
     docPath: 'docs/B7_React_Advanced_Performance.md',
     summary:
-      'Tối ưu hóa render với useMemo, useCallback, React.memo, viết Custom Hooks đóng gói logic và dùng React Profiler.',
+      'Phong ấn các đợt re-render thừa bằng useMemo, useCallback, React.memo, đóng gói vũ khí Custom Hooks (useDebounce, useFetch) và phân tích Flamegraph.',
     topics: [
       'useRef vs useState (lưu dữ liệu không trigger re-render)',
       'useMemo & useCallback (memoization đúng cách)',
@@ -273,15 +462,23 @@ export function useDebounce<T>(value: T, delay = 300): T {
   }, [value, delay]);
   return debouncedValue;
 }`,
-    demoAction: 'Run Performance Memoization Check',
+    demoAction: '⚡ Thi Triển Memoization 0ms (+150 EXP)',
     demoHandler: () => {
-      alert('⚡ [B7 Performance]: Memoization Check Passed! Child component skipped unnecessary re-render using React.memo.');
+      awardRpgReward({
+        expGain: 150,
+        goldGain: 75,
+        questCode: 'B7',
+        reason: '[Ải B7] React.memo + useCallback đã chặn đứng 100% đợt re-render thừa của Hydra!'
+      });
     }
   },
   B8: {
-    badge: 'Bài tập 8 (Hiện tại)',
+    icon: '💎',
+    bossName: 'Boss: Prop-Drilling Golem',
+    xpReward: 150,
+    badge: 'Ải 8 (Hiện tại)',
     shortTitle: 'State Management',
-    title: 'B8: State Management (Zustand & Redux Toolkit)',
+    title: 'Ải B8: Kho Báu Zustand & Redux Toolkit',
     docPath: 'docs/B8_State_Management.md',
     summary:
       'Quản lý Global State với Zustand (Slices, Middleware Persist localStorage, Devtools) và Redux Toolkit (Slices, createAsyncThunk, Reselect).',
@@ -304,11 +501,11 @@ export const useAppStore = createStore(
     )
   )
 );`,
-    demoAction: 'Dispatch Zustand & RTK Actions',
+    demoAction: '💎 Triệu Hồi Zustand & RTK Store (+150 EXP)',
     demoHandler: async () => {
       useAppStore.getState().addToCart({
         id: 'prod_' + Math.floor(Math.random() * 1000),
-        name: 'Sản phẩm demo ' + (useAppStore.getState().cartItems.length + 1),
+        name: 'Kiếm Ánh Sáng +' + (useAppStore.getState().cartItems.length + 1),
         price: 99
       });
       const cartCount = useAppStore.getState().getCartTotalCount();
@@ -317,16 +514,21 @@ export const useAppStore = createStore(
       await reduxStore.dispatch(fetchProductsThunk(2));
       const rtkProducts = reduxStore.getState().products.items.length;
 
-      alert(`✅ [B8 State Management Test]:
-• Zustand Cart: ${cartCount} sản phẩm (Tổng: $${totalPrice}) -> Đã đồng bộ localStorage!
-• Zustand Auth: Đang đăng nhập dưới tên "${useAppStore.getState().user?.name || 'Guest'}"
-• Redux Toolkit: Đã dispatch fetchProductsThunk -> Đang giữ ${rtkProducts} sản phẩm.`);
+      awardRpgReward({
+        expGain: 150,
+        goldGain: 80,
+        questCode: 'B8',
+        reason: `[Ải B8] Zustand túi đồ: ${cartCount} vật phẩm ($${totalPrice}) | RTK Store: ${rtkProducts} items!`
+      });
     }
   },
   B9: {
-    badge: 'Bài tập 9 (Hiện tại)',
+    icon: '🐉',
+    bossName: 'Boss: Network Latency Dragon',
+    xpReward: 200,
+    badge: 'Ải 9 (Hiện tại)',
     shortTitle: 'TanStack Query',
-    title: 'B9: Fetching với TanStack Query (React Query v5)',
+    title: 'Ải B9: Đấu Trường Server State (TanStack Query v5)',
     docPath: 'docs/B9_TanStack_Query.md',
     summary:
       'Quản lý Server State, cơ chế Caching, Invalidation, Stale-While-Revalidate, Phân trang mượt mà không giật UI và Cập nhật lạc quan (Optimistic Updates).',
@@ -347,16 +549,16 @@ export function useProducts(page: number, search: string) {
     placeholderData: keepPreviousData
   });
 }`,
-    demoAction: 'Run TanStack Query Simulator',
+    demoAction: '🐉 Tung Đòn Optimistic Update 0ms (+200 EXP)',
     demoHandler: async () => {
       const demoKey = ['products', 'list', { page: 1 }];
       const query = queryClient.buildQuery({
         queryKey: demoKey,
         queryFn: async () => {
-          await new Promise(r => setTimeout(r, 300));
+          await new Promise(r => setTimeout(r, 200));
           return [
-            { id: 1, title: 'MacBook Pro M3 Max', price: 3499 },
-            { id: 2, title: 'Bàn phím cơ Custom Q1', price: 210 }
+            { id: 1, title: 'Giáp Rồng TanStack', price: 3499 },
+            { id: 2, title: 'Cung Tên StaleTime', price: 210 }
           ];
         },
         staleTime: 5000
@@ -364,29 +566,32 @@ export function useProducts(page: number, search: string) {
 
       const t0 = performance.now();
       await query.fetch();
-      const t1 = performance.now();
-      const fetchDuration = Math.round(t1 - t0);
+      const fetchDuration = Math.round(performance.now() - t0);
 
-      const isStale = query.isStale();
       queryClient.setQueryData(demoKey, old => [
-        { id: 'temp-' + Date.now(), title: '⚡ Sản phẩm Lạc Quan (0ms)', price: 150 },
+        { id: 'temp-' + Date.now(), title: '⚡ Vũ Khí Lạc Quan (0ms)', price: 150 },
         ...(old || [])
       ]);
       const optimisticList = queryClient.getQueryData(demoKey);
 
-      alert(`⚡ [B9 TanStack Query Simulation]:
-1. Cache Miss (Lần đầu): Gọi API mất ~${fetchDuration}ms
-2. Cache Hit (Lần 2): Trả ngay từ RAM (0ms latency, Stale: ${isStale ? 'Có' : 'Chưa'})
-3. Optimistic Update: Thêm thành công sản phẩm tức thì (Tổng: ${optimisticList.length} items)`);
+      awardRpgReward({
+        expGain: 200,
+        goldGain: 100,
+        questCode: 'B9',
+        reason: `[Ải B9] Cache Miss: ${fetchDuration}ms -> Cache Hit: 0ms -> Optimistic UI: ${optimisticList.length} items!`
+      });
     }
   },
   B10: {
-    badge: 'Bài tập 10 (Mới)',
+    icon: '🌌',
+    bossName: 'Boss: Hydration Phantom',
+    xpReward: 200,
+    badge: 'Ải 10 (Mới)',
     shortTitle: 'Next.js + TypeScript',
-    title: 'B10: Next.js (App Router) & TypeScript Integration',
+    title: 'Ải B10: Cổng Không Gian Next.js App Router + TypeScript',
     docPath: 'docs/B10_NextJS_TypeScript.md',
     summary:
-      'Làm chủ Next.js 14/15 App Router, phân biệt React Server Components (RSC) vs Client Components ("use client"), chiến lược SSR/SSG/ISR, định kiểu TypeScript cho Page/Layout/Metadata và Middleware Auth Guard bảo vệ trang B4-B9.',
+      'Làm chủ Next.js 14/15 App Router, phân biệt React Server Components (RSC) vs Client Components ("use client"), chiến lược SSR/SSG/ISR, định kiểu TypeScript và Middleware Auth Guard.',
     topics: [
       'React Server Components (RSC 0kB JS) vs Client Components ("use client")',
       'Chiến lược Rendering: SSR, SSG (generateStaticParams), ISR (revalidate)',
@@ -404,7 +609,7 @@ export function middleware(request: NextRequest) {
   }
   return NextResponse.next();
 }`,
-    demoAction: 'Run Next.js RSC + Middleware Simulator',
+    demoAction: '🌌 Triệu Hồi Next.js RSC & Middleware (+200 EXP)',
     demoHandler: async () => {
       const rscMetrics = await simulateNextRenderingStrategy('RSC');
       const currentUser = useAppStore.getState().user;
@@ -413,21 +618,26 @@ export function middleware(request: NextRequest) {
         token: useAppStore.getState().token,
         policyAccepted: Boolean(currentUser?.policyAccepted)
       });
-      const actionRes = await executeServerAction({
+      await executeServerAction({
         email: currentUser?.email || 'intern@dev.vn',
         role: currentUser?.role || 'INTERN'
       });
 
-      alert(`🚀 [B10 Next.js + TypeScript Simulation]:
-1. Middleware Guard: [${mwCheck.status}] ${mwCheck.action} -> ${mwCheck.message}
-2. Rendering Strategy: ${rscMetrics.name} (TTFB: ${rscMetrics.ttfbMs}ms, Client JS: ${rscMetrics.clientJsKb}kB)
-3. Server Action ("use server"): ${actionRes.message}`);
+      awardRpgReward({
+        expGain: 200,
+        goldGain: 100,
+        questCode: 'B10',
+        reason: `[Ải B10] Middleware [${mwCheck.status}] -> ${rscMetrics.name} (TTFB: ${rscMetrics.ttfbMs}ms, JS: ${rscMetrics.clientJsKb}kB)!`
+      });
     }
   },
   B11: {
-    badge: 'Bài tập 11 (Mới)',
+    icon: '📜',
+    bossName: 'Boss: Unvalidated Payload Demon',
+    xpReward: 200,
+    badge: 'Ải 11 (Mới)',
     shortTitle: 'Form Handling + Policy',
-    title: 'B11: Form Handling (React Hook Form + Zod + Policy Popup)',
+    title: 'Ải B11: Tháp Kiểm Duyệt Form Handling (Hook Form + Zod)',
     docPath: 'docs/B11_Form_Handling.md',
     summary:
       'Xây dựng Form Đăng ký & Đăng nhập chuyên nghiệp với React Hook Form + Zod Schema Validation, kiểm tra khớp mật khẩu (.refine), đánh giá độ mạnh mật khẩu, nút tích chấp nhận Policy và Popup Chính sách đồng bộ 2 chiều.',
@@ -436,13 +646,13 @@ export function middleware(request: NextRequest) {
       'Zod Schema Validation & tự động suy diễn kiểu z.infer<typeof schema>',
       'Cross-field validation (.refine) kiểm tra mật khẩu xác nhận',
       'Bắt buộc tích chọn Checkbox chấp nhận Policy (z.literal(true))',
-      'Popup Chính sách bắt buộc cuộn đọc xuống cuối mới hiện nút "Tôi Đồng Ý"'
+      'Popup Chính sách bắt buộc lướt đọc xuống cuối mới hiện nút "Tôi Đồng Ý"'
     ],
     codeSnippet: `// Zod Schema với .refine() & bắt buộc tích chọn Policy
 export const registerSchema = z.object({
-  fullName: z.string().min(3, 'Tối thiểu 3 ký tự'),
+  fullName: z.string().min(2, 'Tối thiểu 2 ký tự'),
   email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(6).regex(/[A-Za-z]/).regex(/[0-9]/),
+  password: z.string().min(4),
   confirmPassword: z.string(),
   acceptPolicy: z.literal(true, {
     errorMap: () => ({ message: 'Phải tích đồng ý Chính sách!' })
@@ -451,8 +661,14 @@ export const registerSchema = z.object({
   path: ['confirmPassword'],
   message: 'Mật khẩu xác nhận không khớp'
 });`,
-    demoAction: 'Mở Popup Chính Sách & Điều Khoản (B11 Demo)',
+    demoAction: '📜 Mở Pháp Trận Chính Sách & Nhận +200 EXP',
     demoHandler: () => {
+      awardRpgReward({
+        expGain: 200,
+        goldGain: 100,
+        questCode: 'B11',
+        reason: '[Ải B11] Kích hoạt Zod Schema Resolver & Mở Popup Chính sách!'
+      });
       openPolicyModal();
     }
   }
@@ -471,32 +687,35 @@ function renderQuickOverviewGrid() {
   grid.innerHTML = Object.entries(lessonsData)
     .map(([key, item]) => {
       const isActive = key === currentLesson;
-      const isNew = key === 'B10' || key === 'B11';
+      const isCleared = rpgState.clearedQuests.includes(key);
       return `
         <div data-quick-lesson="${key}"
           class="p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
             isActive
-              ? 'bg-indigo-600/15 border-indigo-500 shadow-lg scale-[1.01]'
-              : 'bg-slate-100/70 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/80 hover:border-indigo-400'
+              ? 'bg-indigo-600/20 border-indigo-400 shadow-xl scale-[1.01]'
+              : 'bg-slate-100/70 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-indigo-400'
           }">
           <div>
             <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold ${
-                isNew
-                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                  : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-              }">${key}</span>
-              <span class="text-[11px] font-semibold ${
-                isNew ? 'text-purple-400' : 'text-emerald-400'
-              }">${item.badge}</span>
+              <span class="px-2.5 py-0.5 rounded-md text-xs font-extrabold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                ${item.icon} ${key}
+              </span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                isCleared
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+              }">
+                ${isCleared ? '🏆 ĐÃ VƯỢT ẢI' : `+${item.xpReward} EXP`}
+              </span>
             </div>
             <h4 class="font-bold text-sm text-slate-800 dark:text-white">${item.shortTitle}</h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">${item.summary}</p>
+            <p class="text-[11px] text-indigo-400 font-mono mt-0.5">${item.bossName}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-2">${item.summary}</p>
           </div>
-          <div class="mt-3 pt-2.5 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-xs">
-            <span class="font-bold text-indigo-600 dark:text-indigo-400">Xem bài ${key} →</span>
+          <div class="mt-3 pt-2.5 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
+            <span class="font-bold text-indigo-600 dark:text-indigo-400">Vào Ải ${key} →</span>
             <a href="${item.docPath}" target="_blank" onclick="event.stopPropagation()"
-              class="text-slate-500 hover:text-indigo-400 underline font-mono text-[11px]">Docs .md</a>
+              class="text-slate-400 hover:text-indigo-300 underline font-mono text-[11px]">Bí kíp .md</a>
           </div>
         </div>
       `;
@@ -518,10 +737,10 @@ function renderLessonPanel(lessonKey) {
   currentLesson = lessonKey;
   const panel = document.querySelector('#lesson-panel');
   const docsBtn = document.querySelector('#open-docs-btn');
+  const isCleared = rpgState.clearedQuests.includes(lessonKey);
 
   if (docsBtn) docsBtn.href = lesson.docPath;
 
-  // Update tab buttons styles
   const tabButtons = document.querySelectorAll('#lesson-tabs button');
   tabButtons.forEach(btn => {
     if (btn.dataset.lesson === lessonKey) {
@@ -539,30 +758,38 @@ function renderLessonPanel(lessonKey) {
     panel.innerHTML = `
       <div class="lg:col-span-6 space-y-6">
         <div>
-          <span class="badge-tag">${lessonKey} MODULE • ${lesson.badge}</span>
-          <h3 class="text-2xl font-bold text-slate-800 dark:text-white mt-2">${lesson.title}</h3>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="badge-tag">${lesson.icon} ${lessonKey} • ${lesson.bossName}</span>
+            <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
+              isCleared
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+            }">
+              ${isCleared ? '🏆 Đã Chinh Phục Ải Này' : `🎁 Thưởng Vượt Ải: +${lesson.xpReward} EXP`}
+            </span>
+          </div>
+          <h3 class="text-2xl font-bold text-slate-800 dark:text-white mt-3">${lesson.title}</h3>
           <p class="text-sm text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">${lesson.summary}</p>
         </div>
 
-        <div class="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
-          <strong class="block text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-3">Các Nội Dung Trọng Tâm:</strong>
+        <div class="bg-slate-50 dark:bg-slate-900/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <strong class="block text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-3">🎯 Yêu Cầu Kỹ Năng Của Ải ${lessonKey}:</strong>
           <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
             ${lesson.topics
               .map(
                 t =>
-                  `<li class="flex items-start gap-2"><span class="text-indigo-500 font-bold">•</span><span>${t}</span></li>`
+                  `<li class="flex items-start gap-2"><span class="text-indigo-400 font-bold">⚔️</span><span>${t}</span></li>`
               )
               .join('')}
           </ul>
         </div>
 
         <div class="flex flex-wrap gap-3">
-          <button id="run-demo-btn" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold text-sm hover:bg-indigo-700 transition-colors shadow-md flex items-center gap-2 cursor-pointer">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+          <button id="run-demo-btn" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:opacity-95 transition-all shadow-lg flex items-center gap-2 cursor-pointer">
             ${lesson.demoAction}
           </button>
           <a href="${lesson.docPath}" target="_blank" class="px-5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl font-semibold text-sm hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors flex items-center gap-2">
-            Đọc Báo Cáo Chi Tiết (${lesson.docPath})
+            📖 Mở Bí Kíp Chi Tiết (${lesson.docPath})
           </a>
         </div>
       </div>
@@ -570,7 +797,7 @@ function renderLessonPanel(lessonKey) {
       <div class="lg:col-span-6">
         <div class="card-terminal h-full flex flex-col justify-between">
           <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
-            <span class="text-xs font-mono text-slate-400">${lessonKey} TypeScript / React Sample</span>
+            <span class="text-xs font-mono text-indigo-300">📜 Cổ Thư Pháp Thuật (${lessonKey} Code Sample)</span>
             <div class="flex space-x-1.5">
               <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
               <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
@@ -581,8 +808,8 @@ function renderLessonPanel(lessonKey) {
             lesson.codeSnippet
           )}</code></pre>
           <div class="mt-4 pt-3 border-t border-slate-800/60 flex justify-between items-center">
-            <small class="text-xs text-emerald-400 font-mono">✓ Unlocked via Next.js Auth Guard</small>
-            <small class="text-xs text-indigo-400 font-mono">Status: 100% Completed</small>
+            <small class="text-xs text-emerald-400 font-mono">✓ Bảo hộ bởi Next.js Auth Guard (B10)</small>
+            <small class="text-xs text-amber-400 font-mono">${isCleared ? '🏆 Stage Cleared' : '⚡ Ready to Cast'}</small>
           </div>
         </div>
       </div>
@@ -600,7 +827,145 @@ document.querySelector('#lesson-tabs')?.addEventListener('click', e => {
 });
 
 // ============================================================================
-// 4. POPUP CHÍNH SÁCH & ĐIỀU KHOẢN (SCROLL TO BOTTOM TO REVEAL ACCEPT BUTTON)
+// 5. ĐẤU TRƯỜNG BOSS CUỐI: MENTOR Q&A QUIZ BATTLE
+// ============================================================================
+
+const bossQuizQuestions = [
+  {
+    badge: 'Đòn Khảo Nghiệm B6 (TypeScript)',
+    question: 'Khi nhận dữ liệu JSON chưa rõ kiểu từ API, chiến binh nên dùng kiểu nào thay cho `any` để đảm bảo Type Safety?',
+    options: [
+      'A. Dùng `unknown` kết hợp với Type Guard hoặc Zod Schema',
+      'B. Dùng `Object` hoặc `Function` cho nhanh',
+      'C. Tắt chế độ `"strict": false` trong tsconfig.json'
+    ],
+    correctIdx: 0,
+    explanation: 'Chính xác! `unknown` bắt buộc kiểm tra kiểu (Type Narrowing / Guard) trước khi truy cập thuộc tính.'
+  },
+  {
+    badge: 'Đòn Khảo Nghiệm B9 (TanStack Query)',
+    question: 'Trong kỹ thuật Optimistic Updates (`useMutation`), nếu API trả về lỗi 500 thì ta khôi phục dữ liệu cũ ở callback nào?',
+    options: [
+      'A. Tự động gọi `window.location.reload()`',
+      'B. Trong `onError`, dùng bản chụp `context.previousData` trả về từ `onMutate`',
+      'C. Xóa toàn bộ LocalStorage'
+    ],
+    correctIdx: 1,
+    explanation: 'Tuyệt vời! Snapshot lưu tại `onMutate` giúp rollback chính xác trạng thái Cache trong `onError`.'
+  },
+  {
+    badge: 'Đòn Khảo Nghiệm B10 (Next.js App Router)',
+    question: 'Trong Next.js App Router, khi nào chúng ta bắt buộc phải khai báo directive `"use client"` ở đầu file?',
+    options: [
+      'A. Ở tất cả mọi file trong thư mục `app/`',
+      'B. Khi chỉ cần fetch dữ liệu tĩnh trên Server',
+      'C. Khi Component cần dùng React Hooks (`useState`, `useEffect`, `useForm`) hoặc sự kiện DOM (`onClick`)'
+    ],
+    correctIdx: 2,
+    explanation: 'Đòn chí mạng! Chỉ gắn `"use client"` cho các Component cần tính tương tác trình duyệt.'
+  },
+  {
+    badge: 'Đòn Khảo Nghiệm B11 (Form Handling + Zod)',
+    question: 'Để kiểm tra `confirmPassword === password` và bắt buộc tích chọn Checkbox Policy trong Zod, ta dùng phương thức nào?',
+    options: [
+      'A. Dùng `.refine()` cho đối chiếu mật khẩu và `z.literal(true)` cho ô tích Policy',
+      'B. Chỉ dùng thuộc tính HTML `required` là đủ',
+      'C. Không thể kiểm tra 2 trường phụ thuộc nhau trong Zod'
+    ],
+    correctIdx: 0,
+    explanation: 'Chuẩn xác 100%! `.refine()` kết hợp `path: ["confirmPassword"]` là chuẩn mực vàng trong React Hook Form + Zod.'
+  }
+];
+
+function renderBossQuiz() {
+  const card = document.querySelector('#boss-quiz-card');
+  const hpText = document.querySelector('#boss-hp-text');
+  const hpBar = document.querySelector('#boss-hp-bar');
+  const statusNote = document.querySelector('#boss-status-note');
+
+  if (hpText) hpText.textContent = `${rpgState.bossHp} / 100 HP`;
+  if (hpBar) hpBar.style.width = `${rpgState.bossHp}%`;
+
+  if (!card) return;
+
+  if (rpgState.bossHp <= 0) {
+    if (statusNote) {
+      statusNote.textContent = '🎉 "Khá lắm! Cậu đã nắm vững toàn bộ kiến thức từ B4 đến B11. Xứng đáng 10 điểm!"';
+    }
+    card.innerHTML = `
+      <div class="text-center py-6 space-y-4">
+        <div class="text-5xl">👑</div>
+        <h3 class="text-2xl font-extrabold text-amber-400">CHIẾN THẮNG ĐẠI BOSS MENTOR!</h3>
+        <p class="text-sm text-slate-300">
+          Bạn đã trả lời xuất sắc tất cả các câu hỏi phản biện từ <strong>B4 — B11</strong> và nhận danh hiệu <strong>Grandmaster Frontend Intern</strong>!
+        </p>
+        <button id="revive-boss-btn" type="button"
+          class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold cursor-pointer">
+          🔄 Khiêu Chiến Lại Đại Boss
+        </button>
+      </div>
+    `;
+    document.querySelector('#revive-boss-btn')?.addEventListener('click', () => {
+      rpgState.bossHp = 100;
+      rpgState.currentQuizIdx = 0;
+      saveRpgState();
+      renderBossQuiz();
+    });
+    return;
+  }
+
+  const q = bossQuizQuestions[rpgState.currentQuizIdx % bossQuizQuestions.length];
+
+  card.innerHTML = `
+    <div class="flex items-center justify-between">
+      <span class="px-2.5 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold">
+        ${q.badge}
+      </span>
+      <span class="text-xs font-mono text-slate-400">Câu hỏi ${(rpgState.currentQuizIdx % bossQuizQuestions.length) + 1} / ${bossQuizQuestions.length}</span>
+    </div>
+    <h3 class="text-base sm:text-lg font-bold text-white leading-snug">${q.question}</h3>
+    <div class="space-y-2.5" id="boss-quiz-options">
+      ${q.options
+        .map(
+          (opt, idx) => `
+          <button type="button" data-opt-idx="${idx}"
+            class="w-full text-left p-3.5 rounded-xl bg-slate-900 hover:bg-indigo-950/60 border border-slate-700 hover:border-indigo-400 text-xs sm:text-sm text-slate-200 font-medium transition-all cursor-pointer">
+            ${escapeHtml(opt)}
+          </button>
+        `
+        )
+        .join('')}
+    </div>
+    <p id="boss-quiz-feedback" class="hidden text-xs font-semibold pt-1"></p>
+  `;
+
+  card.querySelectorAll('button[data-opt-idx]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const chosen = Number(btn.getAttribute('data-opt-idx'));
+      const feedback = document.querySelector('#boss-quiz-feedback');
+
+      if (chosen === q.correctIdx) {
+        rpgState.bossHp = Math.max(0, rpgState.bossHp - 25);
+        rpgState.currentQuizIdx += 1;
+        awardRpgReward({
+          expGain: 150,
+          goldGain: 80,
+          reason: `Đòn chí mạng! Trả lời đúng câu hỏi phỏng vấn (-25 HP Boss)`
+        });
+        renderBossQuiz();
+      } else {
+        if (feedback) {
+          feedback.className = 'text-xs font-semibold pt-1 text-rose-400';
+          feedback.textContent = '❌ Chưa chính xác! Hãy đọc kỹ lại kiến thức của Ải và chọn đáp án khác nhé.';
+          feedback.classList.remove('hidden');
+        }
+      }
+    });
+  });
+}
+
+// ============================================================================
+// 6. POPUP CHÍNH SÁCH & ĐIỀU KHOẢN (LƯỚT XUỐNG CUỐI MỚI HIỆN NÚT "TÔI ĐỒNG Ý")
 // ============================================================================
 
 function renderPolicyModalClauses() {
@@ -685,21 +1050,18 @@ function closePolicyModal() {
   }
 }
 
-// Sự kiện mở/đóng Popup Chính sách
 document.querySelector('#open-policy-modal-link')?.addEventListener('click', openPolicyModal);
 document.querySelector('#open-policy-preview-btn')?.addEventListener('click', openPolicyModal);
 document.querySelector('#nav-open-policy-btn')?.addEventListener('click', openPolicyModal);
 document.querySelector('#close-policy-modal-x')?.addEventListener('click', closePolicyModal);
 document.querySelector('#close-policy-modal-btn')?.addEventListener('click', closePolicyModal);
 
-// Đóng khi click ra ngoài vùng đen của Modal
 document.querySelector('#policy-modal')?.addEventListener('click', e => {
   if (e.target.id === 'policy-modal') {
     closePolicyModal();
   }
 });
 
-// Nút "Tôi Đã Đọc Hiểu & Đồng Ý Chính Sách" trong Popup -> Tự động tích Checkbox!
 document.querySelector('#accept-policy-modal-btn')?.addEventListener('click', () => {
   const policyCheckbox = document.querySelector('#input-accept-policy');
   if (policyCheckbox) {
@@ -709,12 +1071,12 @@ document.querySelector('#accept-policy-modal-btn')?.addEventListener('click', ()
   closePolicyModal();
   showAuthBanner(
     'success',
-    '✅ Bạn đã đọc và đồng ý với Chính sách Học viên! Ô tích chọn Policy đã được bật tự động.'
+    '✅ Bạn đã đọc đến cuối và đồng ý với Chính sách Học viên! Ô tích chọn Policy đã được bật tự động.'
   );
 });
 
 // ============================================================================
-// 5. TRANG ĐĂNG KÝ / ĐĂNG NHẬP & FORM HANDLING (B10 & B11)
+// 7. TRANG ĐĂNG KÝ / ĐĂNG NHẬP NHÂN VẬT & FORM HANDLING (B10 & B11)
 // ============================================================================
 
 let authMode = 'login'; // 'login' | 'register'
@@ -722,7 +1084,6 @@ let authMode = 'login'; // 'login' | 'register'
 function setAuthMode(mode) {
   authMode = mode;
 
-  // Cập nhật nút Tab
   const tabBtns = document.querySelectorAll('#auth-mode-tabs button');
   tabBtns.forEach(btn => {
     if (btn.dataset.authMode === mode) {
@@ -734,7 +1095,6 @@ function setAuthMode(mode) {
     }
   });
 
-  // Ẩn/hiện các trường dành riêng cho Đăng ký
   const fullNameWrap = document.querySelector('#field-fullname-wrap');
   const roleWrap = document.querySelector('#field-role-wrap');
   const emailCol = document.querySelector('#field-email-col');
@@ -756,8 +1116,8 @@ function setAuthMode(mode) {
       confirmWrap.hidden = false;
       confirmWrap.classList.remove('hidden');
     }
-    if (submitText) submitText.textContent = 'Đăng Ký Tài Khoản & Vào Xem Bài Tập (B4 — B9)';
-    if (switchLink) switchLink.textContent = 'Đã có tài khoản? Bấm vào đây để chuyển về Đăng Nhập →';
+    if (submitText) submitText.textContent = '✨ Khởi Tạo Nhân Vật & Vào Bản Đồ Bài Tập (B4 — B9)';
+    if (switchLink) switchLink.textContent = 'Đã có nhân vật? Bấm vào đây để chuyển về Đăng Nhập →';
   } else {
     if (fullNameWrap) {
       fullNameWrap.hidden = true;
@@ -772,8 +1132,8 @@ function setAuthMode(mode) {
       confirmWrap.hidden = true;
       confirmWrap.classList.add('hidden');
     }
-    if (submitText) submitText.textContent = 'Đăng Nhập & Mở Khóa Các Bài Tập (B4 — B9)';
-    if (switchLink) switchLink.textContent = 'Chưa có tài khoản? Bấm vào đây để chuyển sang Đăng Ký Tài Khoản mới →';
+    if (submitText) submitText.textContent = '⚔️ Tiến Vào Bản Đồ Bài Tập (B4 — B9)';
+    if (switchLink) switchLink.textContent = 'Chưa có nhân vật? Bấm vào đây để chuyển sang Đăng Ký Tài Khoản mới →';
   }
 
   clearAllFieldErrors();
@@ -792,7 +1152,6 @@ document.querySelector('#switch-auth-mode-link')?.addEventListener('click', () =
   setAuthMode(authMode === 'login' ? 'register' : 'login');
 });
 
-// Nút Hiện/Ẩn mật khẩu
 document.querySelector('#toggle-password-btn')?.addEventListener('click', () => {
   const passInput = document.querySelector('#input-password');
   const toggleBtn = document.querySelector('#toggle-password-btn');
@@ -807,7 +1166,6 @@ document.querySelector('#toggle-password-btn')?.addEventListener('click', () => 
   }
 });
 
-// Nút "Điền nhanh Tài khoản Demo"
 document.querySelector('#fill-demo-btn')?.addEventListener('click', () => {
   const demo = getDemoCredentials();
   const fullNameEl = document.querySelector('#input-fullname');
@@ -818,7 +1176,12 @@ document.querySelector('#fill-demo-btn')?.addEventListener('click', () => {
   const policyEl = document.querySelector('#input-accept-policy');
 
   if (fullNameEl) fullNameEl.value = demo.fullName;
-  if (emailEl) emailEl.value = authMode === 'register' ? `thinh.intern.${Math.floor(Math.random() * 90 + 10)}@dev.vn` : demo.email;
+  if (emailEl) {
+    emailEl.value =
+      authMode === 'register'
+        ? `thinh.hero.${Math.floor(Math.random() * 90 + 10)}@dev.vn`
+        : demo.email;
+  }
   if (roleEl) roleEl.value = demo.role;
   if (passEl) passEl.value = demo.password;
   if (confirmEl) confirmEl.value = demo.password;
@@ -829,7 +1192,7 @@ document.querySelector('#fill-demo-btn')?.addEventListener('click', () => {
   clearAllFieldErrors();
   showAuthBanner(
     'info',
-    '⚡ Đã điền sẵn thông tin hợp lệ và tích chọn đồng ý Policy! Bấm nút bên dưới để vào xem các bài tập từ B4 — B9.'
+    '⚡ Đã triệu hồi thông tin Chiến Binh Demo và tích chọn đồng ý Policy! Bấm nút bên dưới để vào chinh phục các ải từ B4 — B9.'
   );
   updateFormInspector();
 });
@@ -963,7 +1326,6 @@ function updateFormInspector() {
   }
 }
 
-// Lắng nghe sự kiện gõ phím & tích chọn trên Form
 document.querySelector('#input-password')?.addEventListener('input', e => {
   updatePasswordMeter(e.target.value);
   updateFormInspector();
@@ -977,27 +1339,22 @@ document.querySelector('#input-accept-policy')?.addEventListener('change', () =>
   document.querySelector(sel)?.addEventListener('input', updateFormInspector);
 });
 
-// Xử lý Submit Form Đăng nhập / Đăng ký
 document.querySelector('#auth-form')?.addEventListener('submit', e => {
   e.preventDefault();
   const values = getFormValues();
 
-  // 1. Validate bằng Schema của B11 (validateLoginSchema / validateRegisterSchema)
   const validation =
     authMode === 'login' ? validateLoginSchema(values) : validateRegisterSchema(values);
 
   if (!validation.success) {
     renderFieldErrors(validation.errors);
-    showAuthBanner(
-      'error',
-      'Vui lòng kiểm tra lại các trường báo đỏ bên dưới (đặc biệt là nút tích chấp nhận Chính sách Policy)!'
-    );
+    const firstErrorMsg = Object.values(validation.errors)[0];
+    showAuthBanner('error', `⚠️ ${firstErrorMsg}`);
     return;
   }
 
   clearAllFieldErrors();
 
-  // 2. Xác thực hoặc tạo tài khoản mới
   const result =
     authMode === 'login'
       ? authenticateUserAccount(validation.data)
@@ -1009,7 +1366,6 @@ document.querySelector('#auth-form')?.addEventListener('submit', e => {
     return;
   }
 
-  // 3. Lưu vào Zustand Global Auth Store (B8) & Kiểm tra qua Next.js Middleware (B10)
   useAppStore.getState().login(result.user, result.token);
   nextAuthMiddleware.execute({
     pathname: '/dashboard',
@@ -1017,13 +1373,12 @@ document.querySelector('#auth-form')?.addEventListener('submit', e => {
     policyAccepted: true
   });
 
-  // 4. Chuyển sang màn hình Dashboard hiển thị các bài tập từ B4 - B9 (và B10 - B11)
   syncAuthView();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 // ============================================================================
-// 6. ĐIỀU HƯỚNG GIỮA TRANG ĐĂNG NHẬP VÀ DASHBOARD BÀI TẬP 4-9
+// 8. ĐIỀU HƯỚNG GIỮA CỔNG HIỆP HỘI VÀ BẢN ĐỒ CHIẾN DỊCH B4-B9
 // ============================================================================
 
 function syncAuthView() {
@@ -1048,14 +1403,22 @@ function syncAuthView() {
       authNavbar.classList.remove('hidden');
     }
 
-    // Cập nhật thông tin user trên thanh Navbar
     const nameEl = document.querySelector('#nav-user-name');
+    const heroCardName = document.querySelector('#hero-card-name');
     const emailEl = document.querySelector('#nav-user-email');
     const roleEl = document.querySelector('#nav-user-role');
+    const avatarIcon = document.querySelector('#hud-avatar-icon');
+
+    const roleIcons = { INTERN: '⚔️', DEVELOPER: '🔮', MENTOR: '🛡️' };
+    const icon = roleIcons[user.role] || '⚔️';
 
     if (nameEl) nameEl.textContent = user.name || 'Thịnh Intern';
+    if (heroCardName) heroCardName.textContent = user.name || 'Thịnh Intern';
     if (emailEl) emailEl.textContent = user.email || 'intern@dev.vn';
-    if (roleEl) roleEl.textContent = user.role || 'INTERN';
+    if (roleEl) roleEl.textContent = `${icon} ${user.role || 'INTERN'}`;
+    if (avatarIcon) avatarIcon.textContent = icon;
+
+    renderRpgHud();
   } else {
     if (authPortal) {
       authPortal.hidden = false;
@@ -1072,25 +1435,26 @@ function syncAuthView() {
   }
 }
 
-// Nút Đăng xuất (Quay về trang Đăng ký / Đăng nhập)
 document.querySelector('#logout-btn')?.addEventListener('click', () => {
   useAppStore.getState().logout();
   syncAuthView();
   showAuthBanner(
     'info',
-    '👋 Bạn đã đăng xuất. Hãy tích chọn chấp nhận Policy và đăng nhập lại để xem các bài tập từ B4 — B9!'
+    '👋 Chiến binh đã rời Hiệp hội. Hãy tích chọn chấp nhận Policy và đăng nhập lại để vào Bản đồ các ải từ B4 — B9!'
   );
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 // ============================================================================
-// 7. INITIALIZE APPLICATION
+// 9. INITIALIZE APPLICATION
 // ============================================================================
 
 renderPolicyModalClauses();
 renderTasks();
 updateProgress();
 renderUsers();
+renderRpgHud();
 renderLessonPanel('B4');
+renderBossQuiz();
 updateFormInspector();
 syncAuthView();
